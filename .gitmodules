@@ -1,0 +1,6 @@
+[submodule "lampa"]
+	path = lampa
+	url = https://github.com/dhvcc/lampa.git
+[submodule "torrserver"]
+	path = torrserver
+	url = https://github.com/dhvcc/torrserver.git
