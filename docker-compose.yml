@@ -1,11 +1,21 @@
 services:
+  nginx:
+    image: nginx:alpine
+    # container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - torrserver
+      - qbittorrent
+      - lampa
+
   torrserver:
     image: ghcr.io/dhvcc/torrserver:latest
     restart: unless-stopped
-    # Or build locally:
-    # build:
-    #   dockerfile: Dockerfile
-    container_name: torrserver
+    # container_name: torrserver
     environment:
       - TS_PORT=5665
       - TS_DONTKILL=1
@@ -17,48 +27,33 @@ services:
       - torrserver-cache:/opt/ts/torrents
       - torrserver-config:/opt/ts/config
       - qbittorrent-data:/downloads:ro
-    ports:
-      - '5665:5665'
+    expose:
+      - '5665'
 
   qbittorrent:
-    # Change container, update with new init that runs CP for config and jackett after first run if they dont exist
-    container_name: qbittorrent
+    # container_name: qbittorrent
     restart: unless-stopped
-    # preloaded with VueTorrent
-    # image: ghcr.io/hotio/qbittorrent
     build:
       dockerfile: qBittorrent.patch.Dockerfile
       context: .
-    ports:
-      - "5666:5666"
+    expose:
+      - "5666"
     environment:
       - PUID=1000
       - PGID=1000
       - UMASK=002
       - TZ=Etc/UTC
       - WEBUI_PORTS=5666/tcp,5666/udp
-    volumes:
-      - qbittorrent-config:/config
-      - qbittorrent-data:/app/qBittorrent/downloads
-
-  cors_anywhere:
-    container_name: cors-anywhere
-    restart: unless-stopped
-    build:
-      dockerfile: cors-anywhere.patch.Dockerfile
-      context: .
-    ports:
-      - 5667:5667
-    environment:
-      - PORT=5667
-
+    # volumes:
+      # - qbittorrent-config:/config
+      # - qbittorrent-data:/app/qBittorrent/downloads
 
   lampa:
-    container_name: lampa
+    # container_name: lampa
     restart: unless-stopped
     image: ghcr.io/dhvcc/lampa:latest
-    ports:
-      - 80:3000
+    expose:
+      - 3000
 
 volumes:
   torrserver-cache:
