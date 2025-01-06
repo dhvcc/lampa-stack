@@ -1,6 +1,8 @@
 [submodule "lampa"]
 	path = lampa
 	url = https://github.com/dhvcc/lampa.git
+	branch = lampa-stack
 [submodule "torrserver"]
 	path = torrserver
 	url = https://github.com/dhvcc/torrserver.git
+	branch = lampa-stack

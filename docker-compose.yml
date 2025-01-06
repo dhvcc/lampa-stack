@@ -1,0 +1,72 @@
+services:
+  torrserver:
+    image: ghcr.io/dhvcc/torrserver:latest
+    restart: unless-stopped
+    # Or build locally:
+    # build:
+    #   dockerfile: Dockerfile
+    container_name: torrserver
+    environment:
+      - TS_PORT=5665
+      - TS_DONTKILL=1
+      - TS_HTTPAUTH=0
+      - TS_CONF_PATH=/opt/ts/config
+      - TS_TORR_DIR=/opt/ts/torrents
+      - TS_DOWNLOAD_DIR=/downloads
+    volumes:
+      - torrserver-cache:/opt/ts/torrents
+      - torrserver-config:/opt/ts/config
+      - qbittorrent-data:/downloads:ro
+    ports:
+      - '5665:5665'
+
+  qbittorrent:
+    # Change container, update with new init that runs CP for config and jackett after first run if they dont exist
+    container_name: qbittorrent
+    restart: unless-stopped
+    # preloaded with VueTorrent
+    # image: ghcr.io/hotio/qbittorrent
+    build:
+      dockerfile: qBittorrent.patch.Dockerfile
+      context: .
+    ports:
+      - "5666:5666"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - TZ=Etc/UTC
+      - WEBUI_PORTS=5666/tcp,5666/udp
+    volumes:
+      - qbittorrent-config:/config
+      - qbittorrent-data:/app/qBittorrent/downloads
+
+  cors_anywhere:
+    container_name: cors-anywhere
+    restart: unless-stopped
+    build:
+      dockerfile: cors-anywhere.patch.Dockerfile
+      context: .
+    ports:
+      - 5667:5667
+    environment:
+      - PORT=5667
+
+
+  lampa:
+    container_name: lampa
+    restart: unless-stopped
+    image: ghcr.io/dhvcc/lampa:latest
+    ports:
+      - 80:3000
+
+volumes:
+  torrserver-cache:
+  torrserver-config:
+  qbittorrent-config:
+  qbittorrent-data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/Users/alexeyartishevsky/Movies/Torr'
