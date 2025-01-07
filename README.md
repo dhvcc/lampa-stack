@@ -29,6 +29,16 @@ This is intended to be run locally. It's not secure enough to be exposed to the 
 
 TODO
 
+**Lampa**
+Automatic TorrServer setup and configuration
+Automatic setup of torrent parsers (jacred.xyz)
+Default plugins (unofficial plugin store + couple of quality of life plugins)
+Default (better IMO) menu items with optional stuff hidden
+**QBitTorrent**
+jacred.xyz Jackett search integration
+**TorrServer**
+Ability to stream already downloaded torrents without downloading them again (using a shared volume with QBitTorrent)
+
 -----
 
 ### Disclaimer
