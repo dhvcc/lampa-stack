@@ -27,8 +27,6 @@ This is intended to be run locally. It's not secure enough to be exposed to the 
 
 ## Patch list
 
-TODO
-
 **Lampa**
 - Automatic TorrServer setup and configuration
 - Automatic setup of torrent parsers (jacred.xyz)
