@@ -40,7 +40,8 @@ This is intended to be run **locally**. It's **not secure enough** to be exposed
 **QBitTorrent**
 - jacred.xyz Jackett search integration
 - VueTorrent enabled by default
-<img width="1626" alt="image" src="https://github.com/user-attachments/assets/17654cf5-5f66-4330-9d73-4225deaafc4f" />
+<img width="1625" alt="image" src="https://github.com/user-attachments/assets/fafc7ecb-bf51-43a1-b1e6-ebb955c5c259" />
+
 
 **TorrServer**
 - Ability to stream already downloaded torrents without downloading them again (using a shared volume with QBitTorrent)
