@@ -23,7 +23,7 @@ sudo networksetup -setmanualwithdhcprouter "Wi-Fi" 192.168.0.155
 
 ### A note on security
 
-This is intended to be run locally. It's not secure enough to be exposed to the internet.
+This is intended to be run **locally**. It's **not secure enough** to be exposed to the internet.
 
 ## Patch list
 
