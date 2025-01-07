@@ -1,7 +1,6 @@
 services:
   nginx:
     image: nginx:alpine
-    # container_name: nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -15,7 +14,6 @@ services:
   torrserver:
     image: ghcr.io/dhvcc/torrserver:latest
     restart: unless-stopped
-    # container_name: torrserver
     environment:
       - TS_PORT=5665
       - TS_DONTKILL=1
@@ -23,6 +21,8 @@ services:
       - TS_CONF_PATH=/opt/ts/config
       - TS_TORR_DIR=/opt/ts/torrents
       - TS_DOWNLOAD_DIR=/downloads
+      - REACT_APP_SERVER_HOST=.
+      - PUBLIC_URL=.
     volumes:
       - torrserver-cache:/opt/ts/torrents
       - torrserver-config:/opt/ts/config
@@ -31,7 +31,6 @@ services:
       - '5665'
 
   qbittorrent:
-    # container_name: qbittorrent
     restart: unless-stopped
     build:
       dockerfile: qBittorrent.patch.Dockerfile
@@ -39,17 +38,19 @@ services:
     expose:
       - "5666"
     environment:
-      - PUID=1000
-      - PGID=1000
+      # - PUID=1000
+      # - PGID=1000
+      # Use root to avoid permission issues
+      - PUID=0
+      - PGID=0
       - UMASK=002
       - TZ=Etc/UTC
       - WEBUI_PORTS=5666/tcp,5666/udp
-    # volumes:
-      # - qbittorrent-config:/config
-      # - qbittorrent-data:/app/qBittorrent/downloads
+    volumes:
+      - qbittorrent-config:/config
+      - qbittorrent-data:/app/qBittorrent/downloads
 
   lampa:
-    # container_name: lampa
     restart: unless-stopped
     image: ghcr.io/dhvcc/lampa:latest
     expose:
@@ -60,8 +61,9 @@ volumes:
   torrserver-config:
   qbittorrent-config:
   qbittorrent-data:
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: '/Users/alexeyartishevsky/Movies/Torr'
+    # Mount data to already existing folder
+    # driver: local
+    # driver_opts:
+    #   type: 'none'
+    #   o: 'bind'
+    #   device: '/path/to/existing/folder'

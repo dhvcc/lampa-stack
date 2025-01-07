@@ -65,8 +65,6 @@ else
   echo "======= Config INSERTED =========="
   mv /tmp/qBittorrent.patch.conf /config/config/qBittorrent.conf
 fi
-chown -R hotio:hotio /config/config
-chown -R hotio:hotio /config/data
 
 #####      PATCH END      #######
 #################################

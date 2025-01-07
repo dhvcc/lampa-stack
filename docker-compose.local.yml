@@ -1,0 +1,38 @@
+services:
+  nginx:
+    extends:
+      file: docker-compose.yml
+      service: nginx
+
+  torrserver:
+    extends:
+      file: docker-compose.yml
+      service: torrserver
+    build:
+      dockerfile: Dockerfile
+      context: ./torrserver
+      args:
+        - REACT_APP_SERVER_HOST=.
+        - PUBLIC_URL=.
+    image: '' # Override image with empty string to use build instead
+
+  qbittorrent:
+    extends:
+      file: docker-compose.yml
+      service: qbittorrent
+
+  lampa:
+    extends:
+      file: docker-compose.yml
+      service: lampa
+    build:
+      dockerfile: Dockerfile
+      context: ./lampa
+    image: '' # Override image with empty string to use build instead
+
+# Can't use extends at top level
+volumes:
+  torrserver-cache:
+  torrserver-config:
+  qbittorrent-config:
+  qbittorrent-data:
