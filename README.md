@@ -30,14 +30,22 @@ This is intended to be run locally. It's not secure enough to be exposed to the 
 TODO
 
 **Lampa**
-Automatic TorrServer setup and configuration
-Automatic setup of torrent parsers (jacred.xyz)
-Default plugins (unofficial plugin store + couple of quality of life plugins)
-Default (better IMO) menu items with optional stuff hidden
+- Automatic TorrServer setup and configuration
+- Automatic setup of torrent parsers (jacred.xyz)
+- Default plugins (unofficial plugin store + couple of quality of life plugins)
+- Default (better IMO) menu items with optional stuff hidden
+- QBitTorrent integration (ability to "Start download" from the torrent list, instead of only adding it to the list of TorrServer torrents to be streamed)
+<img width="1632" alt="image" src="https://github.com/user-attachments/assets/ead787ea-ec33-4f09-b453-0fc79c2ebec9" />
+- Torrent status in "My torrents" tab, including size, DL speed + ETA. Additional options to start/pause download (qbittorrent) and delete torrent from both qbit and torrserver
+<img width="1628" alt="image" src="https://github.com/user-attachments/assets/14c584a6-bc13-4a5a-b778-5a7447cc51ec" />
+
 **QBitTorrent**
-jacred.xyz Jackett search integration
+- jacred.xyz Jackett search integration
+- VueTorrent enabled by default
+<img width="1626" alt="image" src="https://github.com/user-attachments/assets/17654cf5-5f66-4330-9d73-4225deaafc4f" />
+
 **TorrServer**
-Ability to stream already downloaded torrents without downloading them again (using a shared volume with QBitTorrent)
+- Ability to stream already downloaded torrents without downloading them again (using a shared volume with QBitTorrent)
 
 -----
 
