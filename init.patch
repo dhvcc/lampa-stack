@@ -39,12 +39,6 @@ fi
 ###################################
 #####      PATCH START      #######
 
-# mkdir -p /config/config
-# echo "DEBUG LS =>>>"
-# ls /config/config
-# ls /tmp
-# echo "END   <<<="
-
 mkdir -p /config/data/nova3/engines
 if [ -f /config/data/nova3/engines/jackett.py ]; then
   echo "======= Jackett plugin EXISTS   =========="

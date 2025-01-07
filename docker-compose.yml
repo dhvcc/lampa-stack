@@ -21,8 +21,6 @@ services:
       - TS_CONF_PATH=/opt/ts/config
       - TS_TORR_DIR=/opt/ts/torrents
       - TS_DOWNLOAD_DIR=/downloads
-      - REACT_APP_SERVER_HOST=.
-      - PUBLIC_URL=.
     volumes:
       - torrserver-cache:/opt/ts/torrents
       - torrserver-config:/opt/ts/config
