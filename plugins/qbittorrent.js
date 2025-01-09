@@ -241,6 +241,11 @@
 
   // Register plugin
   window.qbittorrent_plugin = true;
-  Lampa.QBitTorrent = qbit;
+  Lampa.QBitTorrent = new QBitTorrent();
   Lampa.Manifest.plugins = manifest;
+
+  if (!window.qbittorrent_plugin_loaded) {
+    initializeQBitTorrent();
+    window.qbittorrent_plugin_loaded = true;
+  }
 })();

@@ -1,6 +1,8 @@
 (function () {
   "use strict";
 
+  console.info("[Lampa stack defaults] Initializing");
+
   const DEFAULT_PLUGINS = [
     {
       url: "http://lampaplugins.github.io/store/o.js",
@@ -53,13 +55,13 @@
   const plugins = Lampa.Plugins.get();
   function addPluginIfDoesntExist(plugin) {
     if (!plugins.some((p) => p.url === plugin.url)) {
-      console.info(`[LAMPA STACK] Adding plugin: ${plugin.name}`);
+      console.info(`[Lampa stack] Adding plugin: ${plugin.name}`);
       Lampa.Plugins.add(plugin);
     }
   }
 
   function initializeStack() {
-    console.info("[LAMPA STACK] Init, setting default settings");
+    console.info("[Lampa stack] Init, setting default settings");
 
     // Set default settings
     for (let key in DEFAULT_SETTINGS) {
@@ -83,6 +85,11 @@
   };
 
   // Register plugin
-  window.lampa_stack = true;
   Lampa.Manifest.plugins = manifest;
+
+  if (!window.lampa_stack_defaults_loaded) {
+    initializeStack();
+    window.lampa_stack_defaults_loaded = true;
+  }
+
 })();

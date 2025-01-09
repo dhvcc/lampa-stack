@@ -102,4 +102,9 @@
 
   // Register plugin
   Lampa.Manifest.plugins = manifest;
+
+  if (!window.dhvcc_defaults_loaded) {
+    init();
+    window.dhvcc_defaults_loaded = true;
+  }
 })();
