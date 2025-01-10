@@ -50,146 +50,146 @@
    * Format torrent status into human readable string with emoji
    */
   function formatStatus(status) {
-    if (status === "stalledUP") return "🌱 Seeding";
-    if (status === "stoppedUP") return "✅ Done";
-    if (status === "missingFiles") return "⚠️ Missing Files";
-    if (status === "stoppedDL") return "⏹️ Stopped";
-    if (status === "downloading") return "📥 Downloading";
-    if (status === "stalledDL") return "🕔 Stalled";
-    if (status === "checkingDL") return "🔍 Checking Disk Files";
-    if (status === "uploading") return "📤 Uploading";
-    if (status === "metaDL") return "📝 Metadata";
-    return status;
+    const translation_key = "torrent_status_" + status;
+    const translation = Lampa.Lang.translate(translation_key);
+
+    // If no translation found, return original status
+    if (translation === translation_key) return status;
+
+    return translation;
   }
 
   class QBitTorrent {
     constructor() {
-      this.network = new Lampa.Reguest();
       this.baseUrl = window.location.origin + "/qbittorrent";
       this.syncInterval = null;
+      this.loginRetries = 0;
+      this.maxLoginRetries = 3;
+      this.retryDelay = 1000;
     }
 
-    clear() {
-      this.network.clear();
-    }
-
-    login(success, fail) {
-      this.clear();
-      return this.network.silent(
-        this.baseUrl + "/api/v2/auth/login",
-        (result) => {
-          if (success) success(result);
+    async request(endpoint, options = {}) {
+      const defaults = {
+        url: this.baseUrl + endpoint,
+        method: "GET",
+        xhrFields: {
+          withCredentials: true,
         },
-        (error) => {
-          // Somehow it errors but it's all good
-          if (error.status === 200) {
-            success(error);
-            return;
-          }
+        crossDomain: true,
+        cache: false,
+      };
 
-          console.error("[QBitTorrent] Authentication error:", error);
-          if (fail) fail(error);
-        },
-        "username=admin&password=admin",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
+      try {
+        return await $.ajax({ ...defaults, ...options });
+      } catch (error) {
+        // Only attempt login for 401/403 errors and if we haven't exceeded retries
+        if (
+          (error.status === 401 || error.status === 403) &&
+          this.loginRetries < this.maxLoginRetries
+        ) {
+          console.info(
+            `[QBitTorrent] Auth required (attempt ${this.loginRetries + 1}/${
+              this.maxLoginRetries
+            })`
+          );
+
+          this.loginRetries++;
+
+          // Wait before retrying
+          await new Promise((resolve) => setTimeout(resolve, this.retryDelay));
+
+          // Attempt login
+          await this.login();
+
+          // Retry original request
+          return await $.ajax({ ...defaults, ...options });
         }
-      );
+
+        throw error;
+      }
+    }
+
+    async login() {
+      return await $.ajax({
+        url: this.baseUrl + "/api/v2/auth/login",
+        method: "POST",
+        data: "username=admin&password=admin",
+        contentType: "application/x-www-form-urlencoded",
+        xhrFields: {
+          withCredentials: true,
+        },
+        crossDomain: true,
+        cache: false,
+      });
     }
 
     start(hashes) {
-      this.clear();
-      return this.network.silent(
-        this.baseUrl + "/api/v2/torrents/resume",
-        () => {},
-        (error) => {
-          console.error("[QBitTorrent] Failed to start torrent:", error);
-        },
-        createFormData(hashes),
-        {
-          dataType: "text",
-        }
-      );
+      return this.request("/api/v2/torrents/start", {
+        method: "POST",
+        data: createFormData(hashes),
+        processData: false,
+        contentType: false,
+      });
     }
 
     pause(hashes) {
-      this.clear();
-      return this.network.silent(
-        this.baseUrl + "/api/v2/torrents/pause",
-        () => {},
-        (error) => {
-          console.error("[QBitTorrent] Failed to pause torrent:", error);
-        },
-        createFormData(hashes),
-        {
-          dataType: "text",
-        }
-      );
+      return this.request("/api/v2/torrents/stop", {
+        method: "POST",
+        data: createFormData(hashes),
+        processData: false,
+        contentType: false,
+      });
     }
 
     delete(hashes, deleteFiles = true) {
-      this.clear();
-      return this.network.silent(
-        this.baseUrl + "/api/v2/torrents/delete",
-        () => {},
-        (error) => {
-          console.error("[QBitTorrent] Failed to delete torrent:", error);
-        },
-        createFormData(hashes, { deleteFiles }),
-        {
-          dataType: "text",
-        }
-      );
+      return this.request("/api/v2/torrents/delete", {
+        method: "POST",
+        data: createFormData(hashes, { deleteFiles }),
+        processData: false,
+        contentType: false,
+      });
     }
 
-    sync(success, fail) {
-      this.clear();
-      this.network.silent(
-        this.baseUrl + "/api/v2/sync/maindata",
-        (data) => {
-          if (!data.torrents) {
-            if (fail) fail("No torrent data received");
-            return;
-          }
-
-          const processed = {};
-
-          Object.entries(data.torrents).forEach(([hash, torrent]) => {
-            const progress = Math.round(torrent.progress * 100);
-            const dlSpeed = (torrent.dlspeed / (1024 * 1024)).toFixed(2);
-
-            processed[hash] = {
-              time: torrent.added_on * 1000,
-              status: formatStatus(torrent.state),
-              state: torrent.state,
-              progress: progress,
-              size: torrent.size,
-            };
-
-            if (torrent.state === "downloading") {
-              processed[hash].dl = dlSpeed;
-              processed[hash].eta = formatETA(torrent.eta);
+    sync() {
+      return new Promise((resolve, reject) => {
+        this.request("/api/v2/sync/maindata")
+          .then((data) => {
+            if (!data.torrents) {
+              console.warn("[QBitTorrent] No torrent data received");
+              return resolve();
             }
-          });
-          Lampa.Storage.set("qbit_torrents", processed);
 
-          if (success) success(processed);
-        },
-        (error) => {
-          console.error("[QBitTorrent] Failed to get torrent list:", error);
-          if (fail) fail(error);
-        },
-        undefined,
-        {
-          withCredentials: true,
-        }
-      );
+            const processed = {};
+
+            Object.entries(data.torrents).forEach(([hash, torrent]) => {
+              const progress = Math.round(torrent.progress * 100);
+              const dlSpeed = (torrent.dlspeed / (1024 * 1024)).toFixed(2);
+
+              processed[hash] = {
+                time: torrent.added_on * 1000,
+                status: formatStatus(torrent.state),
+                state: torrent.state,
+                progress: progress,
+                size: torrent.size,
+              };
+
+              if (torrent.state === "downloading") {
+                processed[hash].dl = dlSpeed;
+                processed[hash].eta = formatETA(torrent.eta);
+              }
+            });
+
+            Lampa.Storage.set("qbit_torrents", processed);
+            resolve(processed);
+          })
+          .catch((error) => {
+            console.error("[QBitTorrent] Sync failed:", error);
+            reject(error);
+          });
+      });
     }
 
-    startAutoSync(interval = 2000) {
+    startAutoSync(interval = 5000) {
       this.stopAutoSync();
       this.syncInterval = setInterval(() => this.sync(), interval);
     }
@@ -205,28 +205,110 @@
   function initializeQBitTorrent() {
     console.info("[QBitTorrent] Initializing QBitTorrent plugin");
 
+    Lampa.Lang.add({
+      torrent_resume: {
+        ru: "Продолжить скачивание",
+        en: "Resume",
+        uk: "Продовжити завантаження",
+        zh: "继续下载",
+      },
+      torrent_pause: {
+        ru: "Пауза",
+        en: "Pause",
+        uk: "Пауза",
+        zh: "暂停",
+      },
+      torrent_download: {
+        ru: "Начать скачивание",
+        en: "Download",
+        uk: "Завантажити",
+        zh: "开始下载",
+      },
+      torrent_update_status: {
+        ru: "Обновить",
+        en: "Update",
+        uk: "Обновити",
+        zh: "更新",
+      },
+      torrent_status_stalledUP: {
+        ru: "🌱 Раздается",
+        en: "🌱 Seeding",
+        uk: "🌱 Роздається",
+        zh: "🌱 做种中",
+      },
+      torrent_status_stoppedUP: {
+        ru: "✅ Загружено",
+        en: "✅ Done",
+        uk: "✅ Завантажено",
+        zh: "✅ 已完成",
+      },
+      torrent_status_missingFiles: {
+        ru: "⚠️ Файлы отсутствуют",
+        en: "⚠️ Missing Files",
+        uk: "⚠️ Файли відсутні",
+        zh: "⚠️ 文件丢失",
+      },
+      torrent_status_stoppedDL: {
+        ru: "⏹️ Остановлено",
+        en: "⏹️ Stopped",
+        uk: "⏹️ Зупинено",
+        zh: "⏹️ 已停止",
+      },
+      torrent_status_downloading: {
+        ru: "📥 Загружается",
+        en: "📥 Downloading",
+        uk: "📥 Завантажується",
+        zh: "📥 下载中",
+      },
+      torrent_status_stalledDL: {
+        ru: "🕔 Приостановлено",
+        en: "🕔 Stalled",
+        uk: "🕔 Призупинено",
+        zh: "🕔 已暂停",
+      },
+      torrent_status_checkingDL: {
+        ru: "🔍 Проверка файлов",
+        en: "🔍 Checking Files",
+        uk: "🔍 Перевірка файлів",
+        zh: "🔍 检查文件中",
+      },
+      torrent_status_uploading: {
+        ru: "📤 Отдача",
+        en: "📤 Uploading",
+        uk: "📤 Віддача",
+        zh: "📤 上传中",
+      },
+      torrent_status_metaDL: {
+        ru: "📝 Загрузка метаданных",
+        en: "📝 Metadata",
+        uk: "📝 Завантаження метаданих",
+        zh: "📝 元数据",
+      },
+      torrent_status_queuedUP: {
+        ru: "⏳ В очереди",
+        en: "⏳ Queued",
+        uk: "⏳ У черзі",
+        zh: "⏳ 排队中",
+      },
+    });
+
     const qbit = new QBitTorrent();
 
-    // Initial login and sync
-    qbit.login(
-      () => {
-        console.info("[QBitTorrent] Successfully logged in");
-        qbit.sync(
-          () => {
-            console.info("[QBitTorrent] Initial sync complete");
-            qbit.startAutoSync();
-          },
-          (error) => {
-            console.error("[QBitTorrent] Initial sync failed:", error);
-            Lampa.Noty.show("Failed to sync with QBitTorrent");
-          }
-        );
-      },
-      (error) => {
-        console.error("[QBitTorrent] Login failed:", error);
+    // Initial sync without explicit login
+    qbit
+      .sync()
+      .then(() => {
+        console.info("[QBitTorrent] Initial sync complete");
+        qbit.startAutoSync();
+      })
+      .catch((error) => {
+        console.error("[QBitTorrent] Failed to initialize:", error);
         Lampa.Noty.show("Failed to connect to QBitTorrent");
-      }
-    );
+      });
+
+    // Make instance available globally
+    window.qbit = qbit;
+    Lampa.QBitTorrent = qbit;
   }
 
   // Plugin manifest
@@ -240,12 +322,9 @@
   };
 
   // Register plugin
-  window.qbittorrent_plugin = true;
-  Lampa.QBitTorrent = new QBitTorrent();
-  Lampa.Manifest.plugins = manifest;
-
   if (!window.qbittorrent_plugin_loaded) {
-    initializeQBitTorrent();
+    Lampa.Manifest.plugins = manifest;
     window.qbittorrent_plugin_loaded = true;
+    initializeQBitTorrent();
   }
 })();
