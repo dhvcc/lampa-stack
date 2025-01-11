@@ -29,6 +29,12 @@
       language: "ru",
     },
     // {
+    //   url: "/plugins/lampac-online.js",
+    //   status: 1,
+    //   name: "Lampac Online",
+    //   author: "@immisterio",
+    // },
+    // {
     //   url: "https://showy.online/m.js",
     //   status: 1,
     //   name: "Showy Free",

@@ -93,11 +93,10 @@
       }
     // PATCH START
     }, {
-      base: 'lme_jackett',
+      base: 'lampa_stack_local_jackett',
       name: 'Lampa Stack Local Jackett',
       settings: {
-        // url: `${window.location.origin.toString().replace('http://', '').replace('https://', '')}/jackett`,
-        url: `/jackett`,
+        url: `${window.location.origin.toString().replace('http://', '').replace('https://', '')}/jackett`,
         // Hardcoded in ServerConfig.json
         key: 'r690g47kuxnje7m1elrlbo1bs72u7b16',
         parser_torrent_type: 'jackett'

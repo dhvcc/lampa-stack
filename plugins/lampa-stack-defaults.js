@@ -54,10 +54,17 @@
     torrserver_url: window.location.origin + "/torrserver",
     // Local Jackett. Should be by default? I guess we need an updated startup page for that
     // jackett_key: "r690g47kuxnje7m1elrlbo1bs72u7b16",
-    // jackett_url: "/jackett",
+    // jackett_url: `${window.location.origin.toString().replace('http://', '').replace('https://', '')}/jackett`,
+
     jackett_url: "jacred.xyz",
     jackett_url2: "jacred_xyz",
     lme_url_two: "jacred_xyz",
+    
+    // From lampac
+    // jackett_key: "1",
+    // jackett_url: "redapi.cfhttp.top",
+    // parser_torrent_type: "jackett",
+
     parse_in_search: true,
   };
   function setSettingIfNotExists(key, value) {
