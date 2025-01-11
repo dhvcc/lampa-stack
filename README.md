@@ -56,6 +56,10 @@ This software is provided "as is" without warranty of any kind, either expressed
 
 #### TODO
 - [X] Proxy with NGINX to avoid CORS
+- [ ] Custom built Lampac API (With default to avoid admin manifest install and routes restricted only to necessary API) & Online mod
+- [ ] Update Home to have a "Downloaded torrents" shelf
+- [ ] Fix timeouts in local Jackett (AniLibria times out pretty mentally)
+- [ ] LME translations for Shikimori & pubtorr
 - [ ] Avoid hardcoding qbittorrent credentials (I guess we'd need to share them using volumes)
 - [ ] Add vuetorrent webui manually, don't use custom image
 

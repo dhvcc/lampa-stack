@@ -46,6 +46,12 @@
       name: "Предзагрузка ts",
       author: "@rootu",
     },
+    {
+      url: "/plugins/lampac-online.js",
+      status: 1,
+      name: "Lampac Online",
+      author: "@immisterio",
+    },
   ];
 
   const DEFAULT_SETTINGS = {
@@ -59,7 +65,7 @@
     jackett_url: "jacred.xyz",
     jackett_url2: "jacred_xyz",
     lme_url_two: "jacred_xyz",
-    
+
     // From lampac
     // jackett_key: "1",
     // jackett_url: "redapi.cfhttp.top",
@@ -68,21 +74,35 @@
     parse_in_search: true,
   };
   function setSettingIfNotExists(key, value) {
-    if (Lampa.Storage.get(key, '') === '') {
-      console.log("[Lampa stack]", "Setting default setting:", key, "=", value, ", currently set to", typeof Lampa.Storage.get(key), Lampa.Storage.get(key));
+    if (Lampa.Storage.get(key, "") === "") {
+      console.log(
+        "[Lampa stack]",
+        "Setting default setting:",
+        key,
+        "=",
+        value,
+        ", currently set to",
+        typeof Lampa.Storage.get(key),
+        Lampa.Storage.get(key)
+      );
       Lampa.Storage.set(key, value);
     }
   }
 
-  const plugins = Lampa.Plugins.get();
   function addPluginIfDoesntExist(plugin) {
-    if (!plugins.some((p) => p.url === plugin.url)) {
+    if (!Lampa.Storage.get("plugins", "[]").some((p) => p.url === plugin.url)) {
       console.log("[Lampa stack]", "Adding plugin:", plugin.name);
-      Lampa.Utils.putScriptAsync([plugin.url], false, null, () => {
-        let plugins = Lampa.Storage.get('plugins', '[]');
-        plugins.push(plugin);
-        Lampa.Storage.set('plugins', plugins);
-      }, false);
+      Lampa.Utils.putScriptAsync(
+        [plugin.url],
+        false,
+        null,
+        () => {
+          let plugins = Lampa.Storage.get("plugins", "[]");
+          plugins.push(plugin);
+          Lampa.Storage.set("plugins", plugins);
+        },
+        false
+      );
     }
   }
 
@@ -117,5 +137,4 @@
     initializeStack();
     window.lampa_stack_defaults_loaded = true;
   }
-
 })();

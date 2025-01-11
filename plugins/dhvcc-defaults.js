@@ -71,10 +71,9 @@
 
   const DEFAULT_SETTINGS = {};
 
-  const plugins = Lampa.Plugins.get();
   const language = Lampa.Storage.get("language");
   function addPluginIfDoesntExist(plugin) {
-    if (!plugins.some((p) => p.url === plugin.url)) {
+    if (!Lampa.Storage.get("plugins", "[]").some((p) => p.url === plugin.url)) {
       console.log("[Dhvcc defaults]", "Adding plugin: ", plugin.name);
       if (plugin.language && plugin.language !== language) {
         console.log("[Dhvcc defaults]", "Skipping plugin: ", plugin.name, " because it's not for language: ", language);

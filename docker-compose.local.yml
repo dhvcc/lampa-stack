@@ -31,6 +31,11 @@ services:
       - ./jackett/config/Jackett/ServerConfig.json:/tmp/config/Jackett/ServerConfig.json:ro
       - ./jackett/config/Jackett/Indexers:/tmp/config/Jackett/Indexers:ro
 
+  lampac-api:
+    extends:
+      file: docker-compose.yml
+      service: lampac-api
+
   lampa:
     extends:
       file: docker-compose.yml
