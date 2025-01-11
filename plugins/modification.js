@@ -1,12 +1,12 @@
 (function () {
   "use strict";
 
-  console.info("[Lampa stack] Running lampa modification");
+  console.log("[Lampa stack modification]", "Running lampa modification", "");
 
   const plugins = Lampa.Plugins.get();
   function addPluginIfDoesntExist(plugin) {
     if (!plugins.some((p) => p.url === plugin.url)) {
-      console.info(`[Lampa stack modification] Adding plugin: ${plugin.name}`);
+      console.log("[Lampa stack modification]", "Adding plugin:", plugin.name);
       Lampa.Plugins.add(plugin);
     }
   }

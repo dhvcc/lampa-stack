@@ -69,9 +69,9 @@
   const language = Lampa.Storage.get("language");
   function addPluginIfDoesntExist(plugin) {
     if (!plugins.some((p) => p.url === plugin.url)) {
-      console.info(`[Dhvcc defaults] Adding plugin: ${plugin.name}`);
+      console.log("[Dhvcc defaults]", "Adding plugin: ", plugin.name);
       if (plugin.language && plugin.language !== language) {
-        console.info(`[Dhvcc defaults] Skipping plugin: ${plugin.name} because it's not for language: ${language}`);
+        console.log("[Dhvcc defaults]", "Skipping plugin: ", plugin.name, " because it's not for language: ", language);
         return;
       }
       Lampa.Utils.putScriptAsync([plugin.url], false, null, () => {
@@ -83,7 +83,7 @@
   }
 
   function init() {
-    console.info("[Dhvcc defaults] Init, setting default settings");
+    console.log("[Dhvcc defaults]", "Init, setting default settings", '');
 
     // Set default settings
     for (let key in DEFAULT_SETTINGS) {

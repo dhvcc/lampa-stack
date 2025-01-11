@@ -87,10 +87,13 @@
           (error.status === 401 || error.status === 403) &&
           this.loginRetries < this.maxLoginRetries
         ) {
-          console.info(
-            `[QBitTorrent] Auth required (attempt ${this.loginRetries + 1}/${
-              this.maxLoginRetries
-            })`
+          console.log(
+            "[QBitTorrent]",
+            "Auth required (attempt",
+            this.loginRetries + 1,
+            "/",
+            this.maxLoginRetries,
+            ")"
           );
 
           this.loginRetries++;
@@ -156,6 +159,7 @@
           .then((data) => {
             if (!data.torrents) {
               console.warn("[QBitTorrent] No torrent data received");
+              console.log("[QBitTorrent]", "No torrent data received", "");
               return resolve();
             }
 
@@ -184,6 +188,7 @@
           })
           .catch((error) => {
             console.error("[QBitTorrent] Sync failed:", error);
+            console.log("[QBitTorrent]", "Sync failed:", error);
             reject(error);
           });
       });
@@ -203,7 +208,7 @@
   }
 
   function initializeQBitTorrent() {
-    console.info("[QBitTorrent] Initializing QBitTorrent plugin");
+    console.log("[QBitTorrent]", "Initializing QBitTorrent plugin", "");
 
     Lampa.Lang.add({
       torrent_resume: {
@@ -298,11 +303,12 @@
     qbit
       .sync()
       .then(() => {
-        console.info("[QBitTorrent] Initial sync complete");
+        console.log("[QBitTorrent]", "Initial sync complete", "");
         qbit.startAutoSync();
       })
       .catch((error) => {
-        console.error("[QBitTorrent] Failed to initialize:", error);
+        console.error("[QBitTorrent]", "Failed to initialize:", error);
+        console.log("[QBitTorrent]", "Failed to initialize:", error);
         Lampa.Noty.show("Failed to connect to QBitTorrent");
       });
 

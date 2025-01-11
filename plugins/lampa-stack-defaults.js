@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  console.info("[Lampa stack defaults] Initializing");
+  console.log("[Lampa stack defaults]", "Initializing", "");
 
   const DEFAULT_PLUGINS = [
     {
@@ -62,7 +62,7 @@
   };
   function setSettingIfNotExists(key, value) {
     if (Lampa.Storage.get(key, '') === '') {
-      console.info(`[Lampa stack] Setting default setting: ${key} = ${value}, currently set to ${typeof Lampa.Storage.get(key)} ${Lampa.Storage.get(key)}`);
+      console.log("[Lampa stack]", "Setting default setting:", key, "=", value, ", currently set to", typeof Lampa.Storage.get(key), Lampa.Storage.get(key));
       Lampa.Storage.set(key, value);
     }
   }
@@ -70,7 +70,7 @@
   const plugins = Lampa.Plugins.get();
   function addPluginIfDoesntExist(plugin) {
     if (!plugins.some((p) => p.url === plugin.url)) {
-      console.info(`[Lampa stack] Adding plugin: ${plugin.name}`);
+      console.log("[Lampa stack]", "Adding plugin:", plugin.name);
       Lampa.Utils.putScriptAsync([plugin.url], false, null, () => {
         let plugins = Lampa.Storage.get('plugins', '[]');
         plugins.push(plugin);
@@ -80,7 +80,7 @@
   }
 
   function initializeStack() {
-    console.info("[Lampa stack] Init, setting default settings");
+    console.log("[Lampa stack]", "Init, setting default settings", "");
 
     // Set default settings
     for (let key in DEFAULT_SETTINGS) {
