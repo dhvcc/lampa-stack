@@ -119,6 +119,7 @@
         Lampa.Lang.translate("menu_collections"),
         Lampa.Lang.translate("menu_filter"),
         Lampa.Lang.translate("menu_anime"),
+        "Shikimori icon\n            \n            Shikimori",
         Lampa.Lang.translate("Shikimori"),
         Lampa.Lang.translate("ТВ by skaz"),
         Lampa.Lang.translate("TV by skaz 2.0"),
