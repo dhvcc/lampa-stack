@@ -16,13 +16,20 @@
       name: "Пиратские плагины",
     },
     {
+      url: "https://nb557.github.io/plugins/online_mod.js",
+      status: 1,
+      name: "Online mod",
+      author: "@nb557",
+    },
+    {
       url: "http://cub.red/plugin/tmdb-proxy",
       status: 1,
       name: "TMDB Proxy",
       author: "@lampa",
     },
     {
-      url: "https://lampame.github.io/main/pubtorr.js",
+      // url: "https://lampame.github.io/main/pubtorr.js",
+      url: "/plugins/pubtorr.patched.js",
       status: 1,
       name: "Публичные парсеры",
       author: "@lme_chat",
@@ -45,18 +52,30 @@
     parser_use: true,
     vpn_checked_ready: true,
     torrserver_url: window.location.origin + "/torrserver",
-    jackett_key: "",
+    // Local Jackett. Should be by default? I guess we need an updated startup page for that
+    // jackett_key: "r690g47kuxnje7m1elrlbo1bs72u7b16",
+    // jackett_url: "/jackett",
     jackett_url: "jacred.xyz",
     jackett_url2: "jacred_xyz",
     lme_url_two: "jacred_xyz",
     parse_in_search: true,
   };
+  function setSettingIfNotExists(key, value) {
+    if (Lampa.Storage.get(key, '') === '') {
+      console.info(`[Lampa stack] Setting default setting: ${key} = ${value}, currently set to ${typeof Lampa.Storage.get(key)} ${Lampa.Storage.get(key)}`);
+      Lampa.Storage.set(key, value);
+    }
+  }
 
   const plugins = Lampa.Plugins.get();
   function addPluginIfDoesntExist(plugin) {
     if (!plugins.some((p) => p.url === plugin.url)) {
       console.info(`[Lampa stack] Adding plugin: ${plugin.name}`);
-      Lampa.Plugins.add(plugin);
+      Lampa.Utils.putScriptAsync([plugin.url], false, null, () => {
+        let plugins = Lampa.Storage.get('plugins', '[]');
+        plugins.push(plugin);
+        Lampa.Storage.set('plugins', plugins);
+      }, false);
     }
   }
 
@@ -65,7 +84,7 @@
 
     // Set default settings
     for (let key in DEFAULT_SETTINGS) {
-      Lampa.Storage.set(key, DEFAULT_SETTINGS[key]);
+      setSettingIfNotExists(key, DEFAULT_SETTINGS[key]);
     }
 
     // Initialize default plugins if none exist

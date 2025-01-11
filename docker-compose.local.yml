@@ -21,6 +21,16 @@ services:
       file: docker-compose.yml
       service: qbittorrent
 
+  jackett:
+    extends:
+      file: docker-compose.yml
+      service: jackett
+    volumes:
+      - jackett-blackhole:/downloads
+      - jackett-config:/config
+      - ./jackett/config/Jackett/ServerConfig.json:/tmp/config/Jackett/ServerConfig.json:ro
+      - ./jackett/config/Jackett/Indexers:/tmp/config/Jackett/Indexers:ro
+
   lampa:
     extends:
       file: docker-compose.yml
@@ -36,3 +46,5 @@ volumes:
   torrserver-config:
   qbittorrent-config:
   qbittorrent-data:
+  jackett-blackhole:
+  jackett-config:

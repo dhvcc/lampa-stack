@@ -13,6 +13,7 @@
       status: 1,
       name: "Коллекции CUB",
       author: "@lampa",
+      language: "ru",
     },
     {
       url: "http://cub.red/plugin/interface",
@@ -25,6 +26,7 @@
       status: 1,
       name: "Отзывы и рецензии",
       author: "@elenatv99",
+      language: "ru",
     },
     // {
     //   url: "https://showy.online/m.js",
@@ -56,16 +58,27 @@
       status: 1,
       name: "Телевидение by Skaz ",
       author: "@helpiptv",
+      // Enabled it for every language since it's a very good plugin, sadly without translations
+      // language: "ru", 
     },
   ];
 
   const DEFAULT_SETTINGS = {};
 
   const plugins = Lampa.Plugins.get();
+  const language = Lampa.Storage.get("language");
   function addPluginIfDoesntExist(plugin) {
     if (!plugins.some((p) => p.url === plugin.url)) {
       console.info(`[Dhvcc defaults] Adding plugin: ${plugin.name}`);
-      Lampa.Plugins.add(plugin);
+      if (plugin.language && plugin.language !== language) {
+        console.info(`[Dhvcc defaults] Skipping plugin: ${plugin.name} because it's not for language: ${language}`);
+        return;
+      }
+      Lampa.Utils.putScriptAsync([plugin.url], false, null, () => {
+        let plugins = Lampa.Storage.get('plugins', '[]');
+        plugins.push(plugin);
+        Lampa.Storage.set('plugins', plugins);
+      }, false);
     }
   }
 
@@ -82,12 +95,48 @@
       addPluginIfDoesntExist(plugin);
     }
 
-    // Disable Christmas button
+    const menu_hide_value = Lampa.Storage.get("menu_hide", []);
+    if (!menu_hide_value || menu_hide_value.length === 0) {
+      console.warn("[Dhvcc defaults] No menu items hidden. Setting default menu items.");
+      const DEFAULT_MENU_SORT = [
+        Lampa.Lang.translate("menu_main"),
+        Lampa.Lang.translate("menu_feed"),
+        Lampa.Lang.translate("settings_input_links"),
+        Lampa.Lang.translate("title_subscribes"),
+        Lampa.Lang.translate("menu_history"),
+        Lampa.Lang.translate("menu_torrents"),
+        Lampa.Lang.translate("menu_timeline"),
+        Lampa.Lang.translate("menu_movies"),
+        Lampa.Lang.translate("title_persons"),
+        Lampa.Lang.translate("menu_tv"),
+        Lampa.Lang.translate("menu_catalog"),
+        Lampa.Lang.translate("menu_relises"),
+        Lampa.Lang.translate("menu_collections"),
+        Lampa.Lang.translate("menu_filter"),
+        Lampa.Lang.translate("menu_anime"),
+        Lampa.Lang.translate("Shikimori"),
+        Lampa.Lang.translate("ТВ by skaz"),
+        Lampa.Lang.translate("TV by skaz 2.0"),
+      ];
+      let DEFAULT_MENU_HIDE = [
+        Lampa.Lang.translate("menu_feed"),
+        Lampa.Lang.translate("title_persons"),
+        Lampa.Lang.translate("menu_relises"),
+        Lampa.Lang.translate("ТВ by skaz"),
+      ];
+      if (language !== "ru") {  // TODO: Find a better way to do this. Collections is somehow embeded in the menu
+        DEFAULT_MENU_HIDE.push(Lampa.Lang.translate("menu_collections"));
+      }
+      Lampa.Storage.set("menu_hide", DEFAULT_MENU_HIDE);
+      Lampa.Storage.set("menu_sort", DEFAULT_MENU_SORT);
+    }
+
+    // Disable Christmas
     Lampa.Template.add(
-      "DisableChristmasButton",
-      "<style> .christmas__button{display: none;} </style>"
+      "DisableChristmas",
+      "<style> .christmas__button{display: none;} .head__logo-cap {display: none;} </style>"
     );
-    $("body").append(Lampa.Template.get("DisableChristmasButton", {}, true));
+    $("body").append(Lampa.Template.get("DisableChristmas", {}, true));
   }
 
   // Plugin manifest

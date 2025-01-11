@@ -11,6 +11,7 @@ services:
       - torrserver
       - qbittorrent
       - lampa
+      - jackett
 
   torrserver:
     image: ghcr.io/dhvcc/torrserver:latest
@@ -37,9 +38,6 @@ services:
     expose:
       - "5666"
     environment:
-      # - PUID=1000
-      # - PGID=1000
-      # Use root to avoid permission issues
       - PUID=0
       - PGID=0
       - UMASK=002
@@ -48,6 +46,24 @@ services:
     volumes:
       - qbittorrent-config:/config
       - qbittorrent-data:/app/qBittorrent/downloads
+
+  jackett:
+    image: linuxserver/jackett:latest
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - AUTO_UPDATE=true
+    volumes:
+      - jackett-blackhole:/downloads
+      - jackett-config:/config
+      # Default Server Config and Indexers. Put to tmp to avoid overwriting existing config
+      - ./jackett/config/Jackett/ServerConfig.json:/tmp/config/Jackett/ServerConfig.json:ro
+      - ./jackett/config/Jackett/Indexers:/tmp/config/Jackett/Indexers:ro
+    entrypoint: ["/bin/sh", "-c", "mkdir -p /config/Jackett/Indexers && cp -n /tmp/config/Jackett/Indexers/* /config/Jackett/Indexers/ && cp -n /tmp/config/Jackett/ServerConfig.json /config/Jackett/ServerConfig.json && /init"]
+    expose:
+      - "9117"
 
   lampa:
     restart: unless-stopped
@@ -60,6 +76,8 @@ volumes:
   torrserver-config:
   qbittorrent-config:
   qbittorrent-data:
+  jackett-blackhole:
+  jackett-config:
     # Mount data to already existing folder
     # driver: local
     # driver_opts:
