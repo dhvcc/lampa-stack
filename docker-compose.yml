@@ -70,6 +70,8 @@ services:
     # image: ghcr.io/dhvcc/lampac:latest
     image: immisterio/lampac
     restart: unless-stopped
+    volumes:
+      - ./lampac-module-manifest.json:/home/module/manifest.json:ro
     expose:
       - "9118"
 
@@ -84,11 +86,11 @@ volumes:
   torrserver-config:
   qbittorrent-config:
   qbittorrent-data:
-  jackett-blackhole:
-  jackett-config:
     # Mount data to already existing folder
     # driver: local
     # driver_opts:
     #   type: 'none'
     #   o: 'bind'
     #   device: '/path/to/existing/folder'
+  jackett-blackhole:
+  jackett-config:

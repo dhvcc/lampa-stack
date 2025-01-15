@@ -58,13 +58,21 @@
     parser_use: true,
     vpn_checked_ready: true,
     torrserver_url: window.location.origin + "/torrserver",
+    jackett_url: `${window.location.origin.toString().replace('http://', '').replace('https://', '')}/jackett`,
+    jackett_key: "r690g47kuxnje7m1elrlbo1bs72u7b16",
+    jackett_url2: "http://jacred.xyz",
+    jackett_key2: '',
+    jackett_url3: "http://redapi.cfhttp.top",
+    jackett_key3: "1",
+
     // Local Jackett. Should be by default? I guess we need an updated startup page for that
     // jackett_key: "r690g47kuxnje7m1elrlbo1bs72u7b16",
     // jackett_url: `${window.location.origin.toString().replace('http://', '').replace('https://', '')}/jackett`,
 
-    jackett_url: "jacred.xyz",
-    jackett_url2: "jacred_xyz",
-    lme_url_two: "jacred_xyz",
+    // Jacred
+    // jackett_url: "jacred.xyz",
+    // jackett_url2: "jacred_xyz",
+    // lme_url_two: "jacred_xyz",
 
     // From lampac
     // jackett_key: "1",

@@ -35,6 +35,8 @@ services:
     extends:
       file: docker-compose.yml
       service: lampac-api
+    volumes:
+      - ./lampac-module-manifest.json:/home/module/manifest.json:ro
 
   lampa:
     extends:
