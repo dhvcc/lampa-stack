@@ -312,6 +312,31 @@
         Lampa.Noty.show("Failed to connect to QBitTorrent");
       });
 
+    // Sync torrents from TorrServer to keep storage in sync
+    setInterval(() => {
+      Lampa.Torserver.my((items) => {
+        items.forEach(item => {
+          try {
+            const data = JSON.parse(item.data);
+            // Only update storage for Lampa torrents
+            if (data && data.lampa && data.movie) {
+              let torrents_by_hash = Lampa.Storage.get('torrserver_torrents_by_hash', {});
+              torrents_by_hash[item.hash] = data.movie;
+              Lampa.Storage.set('torrserver_torrents_by_hash', torrents_by_hash);
+
+              let torrents_by_movie_id = Lampa.Storage.get('torrserver_torrents_by_movie_id', {});
+              torrents_by_movie_id[data.movie.id] = item.hash;
+              Lampa.Storage.set('torrserver_torrents_by_movie_id', torrents_by_movie_id);
+            }
+          } catch (e) {
+            // Skip items with invalid JSON data
+          }
+        });
+      }, () => {
+        // Handle failure silently
+      });
+    }, 5000);
+
     // Make instance available globally
     window.qbit = qbit;
     Lampa.QBitTorrent = qbit;

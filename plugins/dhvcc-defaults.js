@@ -54,7 +54,7 @@
     // },
     {
       // Is it safe?
-      url: "https://lampame.github.io/main/shikimori.js",
+      url: "/plugins/shikimori.js",
       status: 1,
       name: "Shikimori catalog",
       author: "@lme_chat",
@@ -116,7 +116,7 @@
         Lampa.Lang.translate("menu_tv"),
         Lampa.Lang.translate("menu_catalog"),
         Lampa.Lang.translate("menu_relises"),
-        Lampa.Lang.translate("menu_collections"),
+        "Коллекции",
         Lampa.Lang.translate("menu_filter"),
         Lampa.Lang.translate("menu_anime"),
         "Shikimori icon\n            \n            Shikimori",
@@ -129,6 +129,7 @@
         Lampa.Lang.translate("title_persons"),
         Lampa.Lang.translate("menu_relises"),
         Lampa.Lang.translate("ТВ by skaz"),
+        "Shikimori icon\n            \n            Shikimori",
       ];
       if (language !== "ru") {  // TODO: Find a better way to do this. Collections is somehow embeded in the menu
         DEFAULT_MENU_HIDE.push(Lampa.Lang.translate("menu_collections"));
