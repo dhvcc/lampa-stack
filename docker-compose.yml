@@ -20,7 +20,7 @@ services:
     environment:
       - TS_PORT=5665
       - TS_DONTKILL=1
-      - TS_HTTPAUTH=0
+      - TS_HTTPAUTH=1
       - TS_CONF_PATH=/opt/ts/config
       - TS_TORR_DIR=/opt/ts/torrents
       - TS_DOWNLOAD_DIR=/downloads

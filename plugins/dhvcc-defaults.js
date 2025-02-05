@@ -21,13 +21,6 @@
       name: "Стильный интерфейс",
       author: "@lampa",
     },
-    {
-      url: "http://lampaplugins.github.io/store/o.js",
-      status: 1,
-      name: "Отзывы и рецензии",
-      author: "@elenatv99",
-      language: "ru",
-    },
     // {
     //   url: "/plugins/lampac-online.js",
     //   status: 1,
@@ -54,7 +47,7 @@
     // },
     {
       // Is it safe?
-      url: "/plugins/shikimori.js",
+      url: "/plugins/patched.shikimori.js",
       status: 1,
       name: "Shikimori catalog",
       author: "@lme_chat",
@@ -144,6 +137,12 @@
       "<style> .christmas__button{display: none;} .head__logo-cap {display: none;} </style>"
     );
     $("body").append(Lampa.Template.get("DisableChristmas", {}, true));
+    // Disable ads
+    Lampa.Template.add(
+      "DisableAds",
+      "<style> .ad-server{display: none;} </style>"
+    );
+    $("body").append(Lampa.Template.get("DisableAds", {}, true));
   }
 
   // Plugin manifest

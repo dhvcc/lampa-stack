@@ -3,20 +3,6 @@
 
   console.log("[Lampa stack modification]", "Running lampa modification", "");
 
-//   const currentPlugins = Lampa.Storage.get("plugins", []);
-//   console.log("[Lampa stack modification]", "Current plugins", currentPlugins);
-
-// //   Load previous plugins
-//   currentPlugins.forEach((plugin) => {
-//     addPluginIfDoesntExist(plugin);
-//   });
-
-//   console.log(
-//     "[Lampa stack modification]",
-//     "Loaded previous plugins",
-//     Lampa.Plugins.get()
-//   );
-
   function addPluginIfDoesntExist(plugin) {
     if (!Lampa.Storage.get("plugins", "[]").some((p) => p.url === plugin.url)) {
       console.log("[Lampa stack modification]", "Adding plugin:", plugin.name);

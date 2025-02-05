@@ -29,7 +29,7 @@
     },
     {
       // url: "https://lampame.github.io/main/pubtorr.js",
-      url: "/plugins/pubtorr.patched.js",
+      url: "/plugins/patched.pubtorr.js",
       status: 1,
       name: "Публичные парсеры",
       author: "@lme_chat",
@@ -47,7 +47,7 @@
       author: "@rootu",
     },
     {
-      url: "/plugins/lampac-online.js",
+      url: "/plugins/patched.lampac-online.js",
       status: 1,
       name: "Lampac Online",
       author: "@immisterio",
@@ -56,30 +56,22 @@
 
   const DEFAULT_SETTINGS = {
     parser_use: true,
+    parse_in_search: true,
     vpn_checked_ready: true,
     torrserver_url: window.location.origin + "/torrserver",
+    torrserver_auth: true,
+    torrserver_login: "admin",
+    torrserver_password: "",
+    qbittorrent_user: "admin",
+    qbittorrent_password: "",
     jackett_url: `${window.location.origin.toString().replace('http://', '').replace('https://', '')}/jackett`,
+    // FIXME: CHANGE
     jackett_key: "r690g47kuxnje7m1elrlbo1bs72u7b16",
+    //
     jackett_url2: "http://jacred.xyz",
     jackett_key2: '',
     jackett_url3: "http://redapi.cfhttp.top",
     jackett_key3: "1",
-
-    // Local Jackett. Should be by default? I guess we need an updated startup page for that
-    // jackett_key: "r690g47kuxnje7m1elrlbo1bs72u7b16",
-    // jackett_url: `${window.location.origin.toString().replace('http://', '').replace('https://', '')}/jackett`,
-
-    // Jacred
-    // jackett_url: "jacred.xyz",
-    // jackett_url2: "jacred_xyz",
-    // lme_url_two: "jacred_xyz",
-
-    // From lampac
-    // jackett_key: "1",
-    // jackett_url: "redapi.cfhttp.top",
-    // parser_torrent_type: "jackett",
-
-    parse_in_search: true,
   };
   function setSettingIfNotExists(key, value) {
     if (Lampa.Storage.get(key, "") === "") {
@@ -126,6 +118,63 @@
     for (let plugin of DEFAULT_PLUGINS) {
       addPluginIfDoesntExist(plugin);
     }
+
+    Lampa.Lang.add({
+      settings_main_torrserver: {
+        ru: "Торренты",
+        en: "Torrents",
+        uk: "Торренти",
+        zh: "种子",
+      },
+      settings_server_links: {
+        ru: "TorrServer",
+        en: "TorrServer",
+        uk: "TorrServer",
+        zh: "TorrServer",
+      },
+      settings_qbittorrent_credentials: {
+        ru: "qBittorrent",
+        en: "qBittorrent",
+        uk: "qBittorrent",
+        zh: "qBittorrent",
+      },
+      settings_parser_qbittorrent_user_placeholder: {
+        ru: "",
+        en: "",
+        uk: "",
+        zh: "",
+      },
+      settings_parser_qbittorrent_password_placeholder: {
+        ru: "",
+        en: "",
+        uk: "",
+        zh: "",
+      },
+      settings_qbittorrent_user: {
+        ru: "Логин qBittorrent",
+        en: "qBittorrent login",
+        uk: "Логін qBittorrent",
+        zh: "qBittorrent 登录",
+      },
+      settings_qbittorrent_user_descr: {
+        ru: "Логин для qBittorrent",
+        en: "Login for qBittorrent",
+        uk: "Логін для qBittorrent",
+        zh: "qBittorrent 登录",
+      },
+      settings_qbittorrent_password: {
+        ru: "Пароль qBittorrent",
+        en: "qBittorrent password",
+        uk: "Пароль qBittorrent",
+        zh: "qBittorrent 密码",
+      },
+      settings_qbittorrent_password_descr: {
+        ru: "Пароль для qBittorrent",
+        en: "Password for qBittorrent",
+        uk: "Пароль для qBittorrent",
+        zh: "qBittorrent 密码",
+      },
+    })
   }
 
   // Plugin manifest

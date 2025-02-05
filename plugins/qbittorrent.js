@@ -116,7 +116,7 @@
       return await $.ajax({
         url: this.baseUrl + "/api/v2/auth/login",
         method: "POST",
-        data: "username=admin&password=admin",
+        data: "username=" + Lampa.Storage.field('qbittorrent_user') + "&password=" + Lampa.Storage.field('qbittorrent_password'),
         contentType: "application/x-www-form-urlencoded",
         xhrFields: {
           withCredentials: true,
@@ -295,6 +295,7 @@
         uk: "⏳ У черзі",
         zh: "⏳ 排队中",
       },
+
     });
 
     const qbit = new QBitTorrent();
