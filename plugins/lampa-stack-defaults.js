@@ -59,19 +59,14 @@
     parse_in_search: true,
     vpn_checked_ready: true,
     torrserver_url: window.location.origin + "/torrserver",
-    torrserver_auth: true,
-    torrserver_login: "admin",
-    torrserver_password: "",
-    qbittorrent_user: "admin",
-    qbittorrent_password: "",
-    jackett_url: `${window.location.origin.toString().replace('http://', '').replace('https://', '')}/jackett`,
-    // FIXME: CHANGE
-    jackett_key: "r690g47kuxnje7m1elrlbo1bs72u7b16",
-    //
-    jackett_url2: "http://jacred.xyz",
-    jackett_key2: '',
-    jackett_url3: "http://redapi.cfhttp.top",
-    jackett_key3: "1",
+    torrserver_auth: false,
+    // FIXME: Fix Jackett to not be shit or make other parsers search for more categories
+    // jackett_url: `${window.location.origin.toString().replace('http://', '').replace('https://', '')}/jackett`,
+    // jackett_key: "r690g47kuxnje7m1elrlbo1bs72u7b16",
+    jackett_url: "http://jacred.xyz",
+    jackett_key: '',
+    jackett_url2: "http://redapi.cfhttp.top",
+    jackett_key2: "1",
   };
   function setSettingIfNotExists(key, value) {
     if (Lampa.Storage.get(key, "") === "") {

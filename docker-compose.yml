@@ -4,7 +4,6 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
-      # - "9118:9118"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./plugins:/app/plugins:ro
@@ -12,7 +11,7 @@ services:
       - torrserver
       - qbittorrent
       - lampa
-      - jackett
+      # - jackett
 
   torrserver:
     image: ghcr.io/dhvcc/torrserver:latest
@@ -20,7 +19,7 @@ services:
     environment:
       - TS_PORT=5665
       - TS_DONTKILL=1
-      - TS_HTTPAUTH=1
+      - TS_HTTPAUTH=0
       - TS_CONF_PATH=/opt/ts/config
       - TS_TORR_DIR=/opt/ts/torrents
       - TS_DOWNLOAD_DIR=/downloads
@@ -48,23 +47,23 @@ services:
       - qbittorrent-config:/config
       - qbittorrent-data:/app/qBittorrent/downloads
 
-  jackett:
-    image: linuxserver/jackett:latest
-    restart: unless-stopped
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-      - AUTO_UPDATE=true
-    volumes:
-      - jackett-blackhole:/downloads
-      - jackett-config:/config
-      # Default Server Config and Indexers. Put to tmp to avoid overwriting existing config
-      - ./jackett/config/Jackett/ServerConfig.json:/tmp/config/Jackett/ServerConfig.json:ro
-      - ./jackett/config/Jackett/Indexers:/tmp/config/Jackett/Indexers:ro
-    entrypoint: ["/bin/sh", "-c", "mkdir -p /config/Jackett/Indexers && cp -n /tmp/config/Jackett/Indexers/* /config/Jackett/Indexers/ && cp -n /tmp/config/Jackett/ServerConfig.json /config/Jackett/ServerConfig.json && /init"]
-    expose:
-      - "9117"
+  # jackett:
+  #   image: linuxserver/jackett:latest
+  #   restart: unless-stopped
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Etc/UTC
+  #     - AUTO_UPDATE=true
+  #   volumes:
+  #     - jackett-blackhole:/downloads
+  #     - jackett-config:/config
+  #     # Default Server Config and Indexers. Put to tmp to avoid overwriting existing config
+  #     - ./jackett/config/Jackett/ServerConfig.json:/tmp/config/Jackett/ServerConfig.json:ro
+  #     - ./jackett/config/Jackett/Indexers:/tmp/config/Jackett/Indexers:ro
+  #   entrypoint: ["/bin/sh", "-c", "mkdir -p /config/Jackett/Indexers && cp -n /tmp/config/Jackett/Indexers/* /config/Jackett/Indexers/ && cp -n /tmp/config/Jackett/ServerConfig.json /config/Jackett/ServerConfig.json && /init"]
+  #   expose:
+  #     - "9117"
 
   lampac-api:
     # image: ghcr.io/dhvcc/lampac:latest
@@ -75,8 +74,6 @@ services:
       - ./lampac.init.conf:/home/init.conf:ro
     expose:
       - "9118"
-    ports:
-      - "9118:80"
 
   lampa:
     restart: unless-stopped

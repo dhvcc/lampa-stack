@@ -63,9 +63,6 @@
     constructor() {
       this.baseUrl = window.location.origin + "/qbittorrent";
       this.syncInterval = null;
-      this.loginRetries = 0;
-      this.maxLoginRetries = 3;
-      this.retryDelay = 1000;
     }
 
     async request(endpoint, options = {}) {
@@ -79,51 +76,7 @@
         cache: false,
       };
 
-      try {
-        return await $.ajax({ ...defaults, ...options });
-      } catch (error) {
-        // Only attempt login for 401/403 errors and if we haven't exceeded retries
-        if (
-          (error.status === 401 || error.status === 403) &&
-          this.loginRetries < this.maxLoginRetries
-        ) {
-          console.log(
-            "[QBitTorrent]",
-            "Auth required (attempt",
-            this.loginRetries + 1,
-            "/",
-            this.maxLoginRetries,
-            ")"
-          );
-
-          this.loginRetries++;
-
-          // Wait before retrying
-          await new Promise((resolve) => setTimeout(resolve, this.retryDelay));
-
-          // Attempt login
-          await this.login();
-
-          // Retry original request
-          return await $.ajax({ ...defaults, ...options });
-        }
-
-        throw error;
-      }
-    }
-
-    async login() {
-      return await $.ajax({
-        url: this.baseUrl + "/api/v2/auth/login",
-        method: "POST",
-        data: "username=" + Lampa.Storage.field('qbittorrent_user') + "&password=" + Lampa.Storage.field('qbittorrent_password'),
-        contentType: "application/x-www-form-urlencoded",
-        xhrFields: {
-          withCredentials: true,
-        },
-        crossDomain: true,
-        cache: false,
-      });
+      return await $.ajax({ ...defaults, ...options });
     }
 
     start(hashes) {
