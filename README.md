@@ -64,20 +64,19 @@ This software is provided "as is" without warranty of any kind, either expressed
 ---
 
 #### TODO
-- [X] Proxy with NGINX to avoid CORS
 - [ ] Custom built Lampac API (With default to avoid admin manifest install and routes restricted only to necessary API) & Online mod
+- [ ] Crash dumps saved in Lampa to be able to investigate them
+- [ ] Don't silence console.errors in lampa (adds to the above ^)
+- [] Add bracketed names for logging in dev console, but not in "Lampa console" (like [Lampa stack]). Makes easier to filter **Might be a PR**
+- [ ] More info on the above shelf ^
+- [ ] LME translations for Shikimori & pubtorr **Might be a PR**
+- [ ] Add vuetorrent webui manually, don't use custom image
+
+- [X] ~~Option to deploy with SSL (presigned/letsencrypt)~~ No need, user can proxy the stack with SSL. Other work to prevent hardcoded addresses was already done
 - [X] Custom Jackett and parser fallbacks
 - [X] Fix timeouts in local Jackett (AniLibria times out pretty mentally)
 - [X] Update Home to have a "Downloaded torrents" shelf **Might be a PR**
-- [ ] Crash dumps saved in Lampa to be able to investigate them
-- [ ] Don't silence console.errors in lampa (adds to the above ^)
-- [ ] Add bracketed names for logging in dev console, but not in "Lampa console" (like [Lampa stack]). Makes easier to filter **Might be a PR**
-- [ ] More info on the above shelf ^
-- [ ] LME translations for Shikimori & pubtorr **Might be a PR**
-- [ ] Avoid hardcoding qbittorrent credentials (I guess we'd need to share them using volumes)
-- [ ] Add vuetorrent webui manually, don't use custom image
-
-- [ ] Option to deploy with SSL (presigned/letsencrypt)
-- [ ] Option to run on a different port from 80 (for users who deploy a lot of self hosted services, their 80 may be busy by default)
-- [ ] Plex/Jellyfin library integraion?
+- [X] Proxy with NGINX to avoid CORS
+- [X] ~~Avoid hardcoding qbittorrent credentials (I guess we'd need to share them using volumes)~~ Now using nginx to proxy qbittorrent with localhost auth disabled
+- [X] Option to run on a different port from 80 (for users who deploy a lot of self hosted services, their 80 may be busy by default)
 
