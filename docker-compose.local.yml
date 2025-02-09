@@ -37,6 +37,7 @@ services:
       service: lampac-api
     volumes:
       - ./lampac-module-manifest.json:/home/module/manifest.json:ro
+      - ./lampac.init.conf:/home/init.conf:ro
 
   lampa:
     extends:
