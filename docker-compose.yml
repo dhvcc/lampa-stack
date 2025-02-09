@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
-      - "9118:9118"
+      # - "9118:9118"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./plugins:/app/plugins:ro
@@ -72,8 +72,11 @@ services:
     restart: unless-stopped
     volumes:
       - ./lampac-module-manifest.json:/home/module/manifest.json:ro
+      - ./lampac.init.conf:/home/init.conf:ro
     expose:
       - "9118"
+    ports:
+      - "9118:80"
 
   lampa:
     restart: unless-stopped
