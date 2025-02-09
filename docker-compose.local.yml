@@ -47,12 +47,13 @@ services:
       context: ./lampa
     image: '' # Override image with empty string to use build instead
 
-  echo:
-    image: mendhak/http-https-echo:35
-    restart: unless-stopped
-    expose:
-      - "8080"
-      - "8443"
+  # Test services for nginx proxy debugging
+  # echo:
+  #   image: mendhak/http-https-echo:35
+  #   restart: unless-stopped
+  #   expose:
+  #     - "8080"
+  #     - "8443"
 
 # Can't use extends at top level
 volumes:
