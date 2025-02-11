@@ -49,14 +49,6 @@ This is intended to be run **locally**. It's **not secure enough** to be exposed
 **TorrServer**
 - Ability to stream already downloaded torrents without downloading them again (using a shared volume with QBitTorrent)
 
-
-**Jackett**
-- Default indexers (add more if you need to in the UI at `/jackett`):
-  - rutor
-  - AniLibria
-  - NoNameClub
-  - torrentby
-
 ### Disclaimer
 
 This software is provided "as is" without warranty of any kind, either expressed or implied. The entire responsibility for the content accessed, downloaded, or streamed through this software lies with the end user. The developers and maintainers of this project do not provide any content, nor are they responsible for how this software is used. Users must ensure they have the necessary rights and comply with their local laws and regulations when using this software.

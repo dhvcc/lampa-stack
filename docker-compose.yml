@@ -47,24 +47,6 @@ services:
       - qbittorrent-config:/config
       - qbittorrent-data:/app/qBittorrent/downloads
 
-  # jackett:
-  #   image: linuxserver/jackett:latest
-  #   restart: unless-stopped
-  #   environment:
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=Etc/UTC
-  #     - AUTO_UPDATE=true
-  #   volumes:
-  #     - jackett-blackhole:/downloads
-  #     - jackett-config:/config
-  #     # Default Server Config and Indexers. Put to tmp to avoid overwriting existing config
-  #     - ./jackett/config/Jackett/ServerConfig.json:/tmp/config/Jackett/ServerConfig.json:ro
-  #     - ./jackett/config/Jackett/Indexers:/tmp/config/Jackett/Indexers:ro
-  #   entrypoint: ["/bin/sh", "-c", "mkdir -p /config/Jackett/Indexers && cp -n /tmp/config/Jackett/Indexers/* /config/Jackett/Indexers/ && cp -n /tmp/config/Jackett/ServerConfig.json /config/Jackett/ServerConfig.json && /init"]
-  #   expose:
-  #     - "9117"
-
   lampac-api:
     # image: ghcr.io/dhvcc/lampac:latest
     image: immisterio/lampac
