@@ -25,10 +25,6 @@ services:
     extends:
       file: docker-compose.yml
       service: lampac-api
-    volumes:
-      - ./lampac-module-manifest.json:/home/module/manifest.json:ro
-      - ./lampac.init.conf:/home/init.conf:ro
-
   lampa:
     extends:
       file: docker-compose.yml
@@ -50,5 +46,6 @@ services:
 volumes:
   torrserver-cache:
   torrserver-config:
+  nginx-passwords:
   qbittorrent-config:
   qbittorrent-data:

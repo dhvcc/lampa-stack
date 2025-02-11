@@ -56,6 +56,7 @@ This software is provided "as is" without warranty of any kind, either expressed
 ---
 
 #### TODO
+- [ ] Lampac proxy all online requests
 - [ ] Custom built Lampac API (With default to avoid admin manifest install and routes restricted only to necessary API) & Online mod
 - [ ] Crash dumps saved in Lampa to be able to investigate them
 - [ ] Don't silence console.errors in lampa (adds to the above ^)

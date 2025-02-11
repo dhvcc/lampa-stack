@@ -111,8 +111,7 @@
         this.request("/api/v2/sync/maindata")
           .then((data) => {
             if (!data.torrents) {
-              console.warn("[QBitTorrent] No torrent data received");
-              console.log("[QBitTorrent]", "No torrent data received", "");
+              console.warn("QBitTorrent", "No torrent data received", "");
               return resolve();
             }
 
@@ -140,8 +139,7 @@
             resolve(processed);
           })
           .catch((error) => {
-            console.error("[QBitTorrent] Sync failed:", error);
-            console.log("[QBitTorrent]", "Sync failed:", error);
+            console.error("QBitTorrent", "Sync failed:", error);
             reject(error);
           });
       });
@@ -161,7 +159,7 @@
   }
 
   function initializeQBitTorrent() {
-    console.log("[QBitTorrent]", "Initializing QBitTorrent plugin", "");
+    console.log("QBitTorrent", "Initializing QBitTorrent plugin", "");
 
     Lampa.Lang.add({
       torrent_resume: {
@@ -257,13 +255,11 @@
     qbit
       .sync()
       .then(() => {
-        console.log("[QBitTorrent]", "Initial sync complete", "");
+        console.log("QBitTorrent", "Initial sync complete", "");
         qbit.startAutoSync();
       })
       .catch((error) => {
-        console.error("[QBitTorrent]", "Failed to initialize:", error);
-        console.log("[QBitTorrent]", "Failed to initialize:", error);
-        Lampa.Noty.show("Failed to connect to QBitTorrent");
+        console.error("QBitTorrent", "Failed to initialize:", error);
       });
 
     // Sync torrents from TorrServer to keep storage in sync
@@ -300,8 +296,8 @@
   const manifest = {
     name: "QBitTorrent",
     version: "1.0.0",
-    description: "QBitTorrent integration for Lampa",
-    author: "dhvcc",
+    description: "QBitTorrent integration for Lampa Stack",
+    author: "",
     type: "plugin",
     init: initializeQBitTorrent,
   };

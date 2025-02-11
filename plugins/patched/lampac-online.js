@@ -1,6 +1,6 @@
 (function() {
     'use strict';
-    const localhost = `${window.location.protocol}//${window.location.host}`
+    const localhost = "/lampac-api"
   
     var Defined = {
       api: 'lampac',
