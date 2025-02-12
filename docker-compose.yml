@@ -4,6 +4,7 @@ services:
       context: docker/nginx
       dockerfile: Dockerfile
     restart: unless-stopped
+    command: ["sh", "-c", "envsubst < /etc/nginx/conf.d/variables.conf.template > /etc/nginx/conf.d/variables.conf && nginx -g 'daemon off;'"]
     environment:
       - LAMPA_STACK_SERVER_NAME=${LAMPA_STACK_SERVER_NAME:-_}
       - JWT_SECRET=${LAMPA_STACK_AUTH_JWT_SECRET}
