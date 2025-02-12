@@ -8,6 +8,7 @@ services:
       - LAMPA_STACK_SERVER_NAME=${LAMPA_STACK_SERVER_NAME:-_}
       - JWT_SECRET=${LAMPA_STACK_AUTH_JWT_SECRET}
       - DOLLAR=$$
+      - LAMPA_STACK_REAL_PROTOCOL=${LAMPA_STACK_REAL_PROTOCOL:-http}
     ports:
       - "${LAMPA_STACK_PORT:-80}:80"
     volumes:
