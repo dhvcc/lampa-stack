@@ -54,7 +54,7 @@
           'Token': token
         },
         success: function(response) {
-          if (response.success) {
+          if (response.status == 200) {
             Lampa.Stack.log('Authentication successful');
             window.lampa_stack_authenticated = true;
             resolve();
@@ -64,8 +64,14 @@
           }
         },
         error: function(error) {
-          Lampa.Stack.log('Authentication error:', error);
-          reject(error);
+          if (error.status !== 200) {
+            Lampa.Stack.log('Authentication error:', error);
+            reject(error);
+          } else {
+            Lampa.Stack.log('Authentication successful');
+            window.lampa_stack_authenticated = true;
+            resolve();
+          }
         }
       });
     });
