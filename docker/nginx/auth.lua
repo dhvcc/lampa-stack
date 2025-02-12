@@ -81,6 +81,12 @@ function _M.require_auth()
 end
 
 function _M.handle_cub_auth()
+    if ngx.var.uri ~= "/auth/cub" then
+        _M.log_request_details("Invalid auth endpoint accessed:")
+        ngx.status = 404
+        return ngx.exit(404)
+    end
+
     -- Initialize request
     ngx.req.read_body()
 
