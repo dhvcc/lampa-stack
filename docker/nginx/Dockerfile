@@ -18,6 +18,5 @@ RUN mkdir -p /etc/nginx/lua
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-# COPY variables.conf.template /etc/nginx/templates/10-variables.conf.template
 COPY variables.conf.template /etc/nginx/conf.d/variables.conf.template
 COPY auth.lua /etc/nginx/lua/auth.lua

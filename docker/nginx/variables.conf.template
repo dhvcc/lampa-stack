@@ -1,7 +1,3 @@
-map ${DOLLAR}host ${DOLLAR}lampa_stack_server_name {
-    default ${LAMPA_STACK_SERVER_NAME};
-}
-
 map ${DOLLAR}host ${DOLLAR}real_scheme {
     default ${LAMPA_STACK_REAL_PROTOCOL};
 }
