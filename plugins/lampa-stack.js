@@ -276,6 +276,12 @@
         name: "Sync",
         author: "",
       });
+      addPluginIfDoesntExist({
+        url: "/plugins/patched/backup.js",
+        status: 1,
+        name: "Backup",
+        author: "",
+      });
     }).catch((err) => {
       Lampa.Stack.log("Authentication failed, loading plugins anyway", err);
     });
