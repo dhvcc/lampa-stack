@@ -24,9 +24,11 @@
       const startTime = Date.now();
 
       const check = () => {
-        if (checkFn()) {
+        if (checkFn() === true) {
+          Lampa.Stack.log("Condition met", checkFn.toString());
           resolve();
         } else if (Date.now() - startTime >= timeout) {
+          Lampa.Stack.log("Condition not met, timeout", checkFn.toString());
           reject(new Error('Timeout waiting for condition'));
         } else {
           setTimeout(check, interval);
@@ -225,7 +227,7 @@
 
       if (plugin.waitFor) {
         Lampa.Stack.log("Waiting for plugin:", plugin.name);
-        Lampa.Stack.waitFor(plugin.waitFor).then(() => { addThisPlugin() }).catch(() => {
+        Lampa.Stack.waitFor(plugin.waitFor).then(() => { Lampa.Stack.log("Plugin waited:", plugin.name); addThisPlugin() }).catch(() => {
           Lampa.Stack.log("Failed to wait for plugin:", plugin.name, "after", plugin.waitFor.toString());
         });
       } else {
@@ -308,27 +310,20 @@
     // Try to authenticate first
     authenticate().then(() => {
       Lampa.Stack.log("Authentication successful, loading plugins");
-      
-      for (let plugin of DEFAULT_PLUGINS) {
-        addPluginIfDoesntExist(plugin);
-      }
-
-      for (let key in DEFAULT_SETTINGS) {
-        setSettingIfNotExists(key, DEFAULT_SETTINGS[key]);
-      }
-
-      setupDefaultMenu();
-      disableUnwantedElements();
-
-    }).catch(err => {
-      Lampa.Stack.log("Authentication failed:", err);
-      // Still load plugins that don't require auth
-      for (let plugin of DEFAULT_PLUGINS) {
-        if (!plugin.waitFor) {
-          addPluginIfDoesntExist(plugin);
-        }
-      }
+    }).catch((err) => {
+      Lampa.Stack.log("Authentication failed, loading plugins anyway");
     });
+    
+    for (let plugin of DEFAULT_PLUGINS) {
+      addPluginIfDoesntExist(plugin);
+    }
+
+    for (let key in DEFAULT_SETTINGS) {
+      setSettingIfNotExists(key, DEFAULT_SETTINGS[key]);
+    }
+
+    setupDefaultMenu();
+    disableUnwantedElements();
 
     Lampa.Lang.add({
     });
