@@ -92,7 +92,7 @@
       waitFor: waitForInitialSync,
     },
     {
-      url: "http://cub.red/plugin/tmdb-proxy",
+      url: "https://cub.red/plugin/tmdb-proxy",
       status: 1,
       name: "TMDB Proxy",
       author: "@lampa",
@@ -138,26 +138,26 @@
     },
     // UI and collections
     {
-      url: "http://cub.red/plugin/interface",
+      url: "https://cub.red/plugin/interface",
       status: 1,
       name: "Стильный интерфейс",
       author: "@lampa",
     },
     {
-      url: "http://skaz.tv/tv.js",
+      url: "https://skaz.tv/tv.js",
       status: 1,
       name: "Телевидение by Skaz",
       author: "@helpiptv",
     },
     {
-      url: "http://cub.red/plugin/etor",
+      url: "https://cub.red/plugin/etor",
       status: 1,
       name: 'Добавляет пункт "Парсер" в меню',
       author: "@lampa",
     },
     // Store
     {
-      url: "http://lampaplugins.github.io/store/store.js",
+      url: "https://lampaplugins.github.io/store/store.js",
       status: 1,
       name: "Пиратские плагины",
     },
