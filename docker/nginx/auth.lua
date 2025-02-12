@@ -1,5 +1,22 @@
 local _M = {}
 
+function _M.is_authorized_email(email)
+    local f = io.open("/etc/nginx/auth/authorized_emails.conf", "r")
+    if not f then
+        ngx.log(ngx.ERR, "Failed to open authorized_emails.conf")
+        return false
+    end
+
+    for line in f:lines() do
+        if line:gsub("%s+", "") == email then
+            f:close()
+            return true
+        end
+    end
+    f:close()
+    return false
+end
+
 function _M.validate_jwt(auth_token)
     if not auth_token then
         return nil, "No auth token found"
@@ -124,6 +141,14 @@ function _M.handle_cub_auth()
         ngx.header.content_type = "application/json"
         ngx.say('{"error":"Invalid token"}')
         return ngx.exit(401)
+    end
+
+    -- Check if email is authorized
+    if not _M.is_authorized_email(data.user.email) then
+        ngx.status = 403
+        ngx.header.content_type = "application/json"
+        ngx.say('{"error":"Email not authorized"}')
+        return ngx.exit(403)
     end
 
     -- Create JWT payload

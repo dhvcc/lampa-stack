@@ -46,6 +46,6 @@ services:
 volumes:
   torrserver-cache:
   torrserver-config:
-  nginx-passwords:
+  nginx-auth:
   qbittorrent-config:
   qbittorrent-data:

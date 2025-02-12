@@ -12,7 +12,7 @@ services:
       - "${LAMPA_STACK_PORT:-80}:80"
     volumes:
       - ./plugins:/app/plugins:ro
-      - nginx-passwords:/etc/nginx/pass
+      - nginx-auth:/etc/nginx/auth
     depends_on:
       - torrserver
       - qbittorrent
@@ -76,7 +76,7 @@ services:
 volumes:
   torrserver-cache:
   torrserver-config:
-  nginx-passwords:
+  nginx-auth:
   qbittorrent-config:
   qbittorrent-data:
     # Mount data to already existing folder

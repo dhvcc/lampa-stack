@@ -11,31 +11,29 @@ cd lampa-stack
 docker compose up # or docker-compose up
 ```
 
+**Internal services are protected by JWT auth. To allow access, add your CUB email using `./add_user.sh` and then login into your cub account inside Lampa.**
+
 ### Networking
 
-Since this is going to be run locally exposed **only to the local network**, to access the address on the other devices you'll possibly need to set a manual IP address within this network to avoid constant IP rotation.
-
-On MacOS this can be done by setting manual IP with DHCP using `networksetup` command. "Wi-Fi" is the name of the network interface. And `192.168.0.155` is the IP address you want to set.
-
-```zsh
-sudo networksetup -setmanualwithdhcprouter "Wi-Fi" 192.168.0.155
-```
+Since this is going to be run locally **exposed to the local network**, to access the address on the other devices you'll possibly need to set a manual IP address within this network to avoid constant IP rotation.
 
 ### A note on security
 
-This is intended to be run **locally**. It's **not secure enough** to be exposed to the internet.
+This is mostly intended to be run **locally**. Only expose it to the local network if you know what you're doing.
 
 ## Patch list
+
+**NGINX**
+- JWT auth for the whole stack (secures torrserver, qbittorrent and lampac-api for online)
 
 **Lampa**
 - Automatic TorrServer setup and configuration
 - Automatic setup of torrent parsers (jacred.xyz)
 - Default plugins (unofficial plugin store + couple of quality of life plugins)
 - Default (better IMO) menu items with optional stuff hidden
+- Online plugin enabled by default (Lampac Online)
+- [ ] [WIP] Auto sync of settings
 - QBitTorrent integration (ability to "Start download" from the torrent list, instead of only adding it to the list of TorrServer torrents to be streamed)
-- 2 online plugins enabled by default (Lampac Online & nb557's online plugin)
-- Integration with local Jackett by default with jacred.xyz and redapi.cfhttp.top fallbacks
-- Added Local Jackett as an option to the pubtorr plugin (public parser list you see in the settings)
 <img width="1632" alt="image" src="https://github.com/user-attachments/assets/ead787ea-ec33-4f09-b453-0fc79c2ebec9" />
 - Torrent status in "My torrents" tab, including size, DL speed + ETA. Additional options to start/pause download (qbittorrent) and delete torrent from both qbit and torrserver
 <img width="1628" alt="image" src="https://github.com/user-attachments/assets/14c584a6-bc13-4a5a-b778-5a7447cc51ec" />
