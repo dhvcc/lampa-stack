@@ -167,6 +167,11 @@
     // Account settings
     account_use: false,  // Disable Cub sync, we're going to use our own backup
 
+    // TMDB Proxy
+    proxy_tmdb: true,
+    tmdb_proxy_api: "apitmdb.cub.red",
+    tmdb_proxy_image: "imagetmdb.com",
+
     // Torrent settings
     parser_use: true,
     parse_in_search: true,
