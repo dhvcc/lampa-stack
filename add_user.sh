@@ -2,15 +2,6 @@
 
 set -e
 
-lampac_local_api_url="http://localhost:9118"
-
-# Get CUB account email
-read -p "Enter CUB account email: " cub_email
-
-# Generate random password
-admin_pass=$(LC_ALL=C tr -dc 'A-Za-z0-9!?%=' < /dev/urandom | head -c 10)
-
-
 # Check for docker compose command availability
 if command -v docker compose >/dev/null 2>&1; then
     compose_cmd="docker compose"
@@ -21,39 +12,46 @@ else
     exit 1
 fi
 
-# Wait for lampac-api service to be ready and check existing password
-retries=0
-while [ $retries -lt 5 ]; do
-    response=$($compose_cmd exec -T lampac-api curl --fail -s "$lampac_local_api_url/storage/get?path=backup&account_email=$cub_email")
-    if [ $? -eq 0 ]; then
-        if echo "$response" | grep -q "stack_password"; then
-            read -p "Password already exists. Do you want to update it? [y/N] " update_pass
-            if [[ ! $update_pass =~ ^[Yy]$ ]] && [[ ! $update_pass =~ ^[Yy][Ee][Ss]$ ]]; then
-                echo "Keeping existing password"
-                exit 0
-            fi
-        fi
-        break
-    fi
-    retries=$((retries + 1))
-    sleep 1
-done
+# Get username
+read -p "Enter username: " username
 
-if [ $retries -eq 5 ]; then
-    echo "lampac-api service failed to start after 5 retries"
-    exit 1
+password_exists=false
+# Check if password already exists for user
+if $compose_cmd exec -T nginx cat /etc/nginx/pass/.htpasswd 2>/dev/null | grep -q "^$username:"; then
+    password_exists=true
+    read -p "Password already exists. Do you want to update it? [y/N] " update_pass
+    if [[ ! $update_pass =~ ^[Yy]$ ]] && [[ ! $update_pass =~ ^[Yy][Ee][Ss]$ ]]; then
+        echo "Keeping existing password"
+        exit 0
+    fi
 fi
 
-# Set credentials and email in storage
-$compose_cmd exec -T lampac-api curl --fail -s -o /dev/null -X POST "http://localhost:9118/storage/set?path=backup&account_email=$cub_email" \
-    -H "Content-Type: application/json" \
-    -d "{\"lampa_stack_user\":\"$cub_email\",\"lampa_stack_password\":\"$admin_pass\"}"
+# Ask if user wants to input password manually
+read -p "Do you want to input password manually? [y/N] " manual_pass
+if [[ $manual_pass =~ ^[Yy]$ ]] || [[ $manual_pass =~ ^[Yy][Ee][Ss]$ ]]; then
+    read -s -p "Enter password: " password
+    echo
+else
+    # Password will be auto-generated
+    auto_generated=true
+    password=$(LC_ALL=C tr -dc 'A-Za-z0-9!?%=' < /dev/urandom | head -c 10)
+fi
 
-# Create htpasswd file in nginx container
-$compose_cmd exec -T nginx sh -c "echo -n '$cub_email:' >> /etc/nginx/pass/.htpasswd && echo '$admin_pass' | openssl passwd -apr1 -stdin >> /etc/nginx/pass/.htpasswd"
+if [ "$password_exists" = true ]; then
+    # Remove existing user and add new user
+    $compose_cmd exec -T nginx sh -c "grep -v '^$username:' /etc/nginx/pass/.htpasswd > /etc/nginx/pass/.htpasswd.tmp && mv /etc/nginx/pass/.htpasswd.tmp /etc/nginx/pass/.htpasswd && echo -n '$username:' >> /etc/nginx/pass/.htpasswd && echo '$password' | openssl passwd -apr1 -stdin >> /etc/nginx/pass/.htpasswd"
+else
+    # Add new user
+    $compose_cmd exec -T nginx sh -c "echo -n '$username:' >> /etc/nginx/pass/.htpasswd && echo '$password' | openssl passwd -apr1 -stdin >> /etc/nginx/pass/.htpasswd"
+fi
+
 
 echo
-echo "Password for $cub_email set to: $admin_pass"
+if [ "$auto_generated" = true ]; then
+    echo "Password for user $username set to $password"
+else
+    echo "Password for user $username was set"
+fi
 echo "*************************************************************************************************************"
 echo "Remember to NOT EXPOSE your stack to the public internet unless you're using SSL and know what your are doing"
 echo "*************************************************************************************************************"

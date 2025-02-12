@@ -1,0 +1,3 @@
+map ${DOLLAR}host ${DOLLAR}lampa_stack_server_name {
+    default ${LAMPA_STACK_SERVER_NAME};
+}

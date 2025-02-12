@@ -91,17 +91,6 @@
         key: '',
         parser_torrent_type: 'jackett'
       }
-    // PATCH START
-    }, {
-      base: 'lampa_stack_local_jackett',
-      name: 'Lampa Stack Local Jackett',
-      settings: {
-        url: `${window.location.origin.toString().replace('http://', '').replace('https://', '')}/jackett`,
-        // Hardcoded in ServerConfig.json
-        key: 'r690g47kuxnje7m1elrlbo1bs72u7b16',
-        parser_torrent_type: 'jackett'
-      }
-    // PATCH END
     }];
 
     var proto = location.protocol === "https:" ? 'https://' : 'http://';

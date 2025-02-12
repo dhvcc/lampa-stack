@@ -7,7 +7,7 @@
   function log() {
     const args = Array.from(arguments);
     const prefix = "Lampa Stack";
-    
+
     // Ensure at least 2 additional arguments after prefix
     while (args.length < 2) {
       args.push("");
@@ -19,7 +19,62 @@
 
   Lampa.Stack.log = log;
 
+  const waitFor = (checkFn, interval = 200, timeout = 3000) => {
+    return new Promise((resolve, reject) => {
+      const startTime = Date.now();
 
+      const check = () => {
+        if (checkFn()) {
+          resolve();
+        } else if (Date.now() - startTime >= timeout) {
+          reject(new Error('Timeout waiting for condition'));
+        } else {
+          setTimeout(check, interval);
+        }
+      };
+
+      check();
+    });
+  };
+  Lampa.Stack.waitFor = waitFor;
+
+  const authenticate = () => {
+    return new Promise((resolve, reject) => {
+      const token = Lampa.Storage.get('account', '{}').token;
+      if (!token) {
+        Lampa.Stack.log('No token found, skipping auth');
+        reject('No token found');
+        return;
+      }
+
+      $.ajax({
+        url: '/auth/cub',
+        type: 'POST',
+        headers: {
+          'Token': token
+        },
+        success: function(response) {
+          if (response.success) {
+            Lampa.Stack.log('Authentication successful');
+            window.lampa_stack_authenticated = true;
+            resolve();
+          } else {
+            Lampa.Stack.log('Authentication failed:', response);
+            reject(response.error);
+          }
+        },
+        error: function(error) {
+          Lampa.Stack.log('Authentication error:', error);
+          reject(error);
+        }
+      });
+    });
+  };
+  Lampa.Stack.authenticate = authenticate;
+
+
+  const waitForInitialSync = () => waitFor(() => window.lampa_stack_initial_sync);
+  const waitForAuthenticated = () => waitFor(() => window.lampa_stack_authenticated);
   const DEFAULT_PLUGINS = [
     // Core functionality plugins
     {
@@ -27,12 +82,14 @@
       status: 1,
       name: "Sync",
       author: "",
+      waitFor: waitForAuthenticated,
     },
     {
       url: "/plugins/qbittorrent.js",
       status: 1,
       name: "QBitTorrent",
       author: "",
+      waitFor: waitForInitialSync,
     },
     {
       url: "http://cub.red/plugin/tmdb-proxy",
@@ -71,6 +128,7 @@
       status: 1,
       name: "Lampac Online",
       author: "@immisterio",
+      waitFor: waitForInitialSync,
     },
     {
       url: "/plugins/patched/shikimori.js",
@@ -132,7 +190,7 @@
 
   function addPluginIfDoesntExist(plugin) {
     if (!Lampa.Storage.get("plugins", "[]").some((p) => p.url === plugin.url)) {
-      Lampa.Stack.log("Adding plugin:", plugin.name);
+      Lampa.Stack.log("Trying to add plugin:", plugin.name);
 
       // Skip language-specific plugins if they don't match current language
       if (plugin.language && plugin.language !== Lampa.Storage.get("language")) {
@@ -140,17 +198,29 @@
         return;
       }
 
-      Lampa.Utils.putScriptAsync(
-        [plugin.url],
-        false,
-        null,
-        () => {
-          let plugins = Lampa.Storage.get("plugins", "[]");
-          plugins.push(plugin);
-          Lampa.Storage.set("plugins", plugins);
-        },
-        false
-      );
+      const addThisPlugin = () => {
+        Lampa.Utils.putScriptAsync(
+          [plugin.url],
+          false,
+          null,
+          () => {
+            let plugins = Lampa.Storage.get("plugins", "[]");
+            plugins.push(plugin);
+            Lampa.Storage.set("plugins", plugins);
+          },
+          false
+        );
+      }
+
+      if (plugin.waitFor) {
+        Lampa.Stack.log("Waiting for plugin:", plugin.name);
+        Lampa.Stack.waitFor(plugin.waitFor).then(() => { addThisPlugin() }).catch(() => {
+          Lampa.Stack.log("Failed to wait for plugin:", plugin.name, "after", plugin.waitFor.toString());
+        });
+      } else {
+        Lampa.Stack.log("Adding plugin:", plugin.name);
+        addThisPlugin();
+      }
     }
   }
 
@@ -224,17 +294,30 @@
   function init() {
     Lampa.Stack.log("Initializing stack");
 
-    for (let plugin of DEFAULT_PLUGINS) {
-      addPluginIfDoesntExist(plugin);
-    }
+    // Try to authenticate first
+    authenticate().then(() => {
+      Lampa.Stack.log("Authentication successful, loading plugins");
+      
+      for (let plugin of DEFAULT_PLUGINS) {
+        addPluginIfDoesntExist(plugin);
+      }
 
-    for (let key in DEFAULT_SETTINGS) {
-      setSettingIfNotExists(key, DEFAULT_SETTINGS[key]);
-    }
+      for (let key in DEFAULT_SETTINGS) {
+        setSettingIfNotExists(key, DEFAULT_SETTINGS[key]);
+      }
 
-    setupDefaultMenu();
+      setupDefaultMenu();
+      disableUnwantedElements();
 
-    disableUnwantedElements();
+    }).catch(err => {
+      Lampa.Stack.log("Authentication failed:", err);
+      // Still load plugins that don't require auth
+      for (let plugin of DEFAULT_PLUGINS) {
+        if (!plugin.waitFor) {
+          addPluginIfDoesntExist(plugin);
+        }
+      }
+    });
 
     Lampa.Lang.add({
     });

@@ -4,16 +4,20 @@ services:
       context: docker/nginx
       dockerfile: Dockerfile
     restart: unless-stopped
+    environment:
+      - LAMPA_STACK_SERVER_NAME=${LAMPA_STACK_SERVER_NAME:-_}
+      - JWT_SECRET=${LAMPA_STACK_AUTH_JWT_SECRET}
+      - DOLLAR=$$
     ports:
       - "${LAMPA_STACK_PORT:-80}:80"
     volumes:
-      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./plugins:/app/plugins:ro
       - nginx-passwords:/etc/nginx/pass
     depends_on:
       - torrserver
       - qbittorrent
       - lampa
+      - lampac-api
 
   torrserver:
     image: ghcr.io/dhvcc/torrserver:latest
@@ -64,6 +68,10 @@ services:
     image: ghcr.io/dhvcc/lampa:latest
     expose:
       - 3000
+    depends_on:
+      - torrserver
+      - qbittorrent
+      - lampac-api
 
 volumes:
   torrserver-cache:

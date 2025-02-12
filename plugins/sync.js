@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    const localhost = "/";
+    const localhost = "/lampac-api";
     const syncInterval = 10000; // 10 seconds
     const exportExcludeKeys = [
         'vuetorrent_dashboard',
@@ -40,7 +40,7 @@
         export: function () {
             const url = getAccountUrl('set');
             if (!url) {
-                console.log('[Backup] No email set, skipping export');
+                Lampa.Stack.log('No email set, skipping export');
                 return;
             }
 
@@ -56,14 +56,14 @@
                 contentType: 'application/json',
                 success: function (response) {
                     if (response.success) {
-                        console.log('[Backup] Export successful');
+                        Lampa.Stack.log('Export successful');
                     } else {
-                        console.log('[Backup] Export failed:', response);
+                        Lampa.Stack.log('Export failed:', response);
                     }
                 },
                 error: function (error) {
-                    console.log('[Backup] Export error:', error);
-                }
+                    Lampa.Stack.log('Export error:', error);
+                },
             });
         },
 
@@ -76,7 +76,7 @@
         import: function (options = {}) {
             const url = getAccountUrl('get');
             if (!url) {
-                console.log('[Backup] No email set, skipping import');
+                Lampa.Stack.log('No email set, skipping import');
                 return;
             }
 
@@ -106,30 +106,30 @@
                                         mergedValue
                                 );
                             } catch (e) {
-                                console.log('[Backup] Error merging key:', key, e);
+                                Lampa.Stack.log('Error merging key:', key, e);
                                 // On error, fallback to simple override based on force flag
                                 if (options.force) {
                                     localStorage.setItem(key, data[key]);
                                 }
                             }
                         }
-                        console.log('[Backup] Import successful');
+                        Lampa.Stack.log('Import successful');
 
                         if (options.initial) {
-                            window.initial_sync = true;
+                            window.lampa_stack_initial_sync = true;
                         }
                     }
                 },
                 error: function (error) {
                     console.log('[Backup] Import error:', error);
-                }
+                },
             });
         },
 
         startAutoSync: function () {
             // Set up interval for continuous sync
             setInterval(() => {
-                // this.import();
+                this.import();
                 this.export();
             }, syncInterval);
         }
@@ -154,9 +154,9 @@
     disableCubSync();
 
     Lampa.LampaBackup = Backup;
-    if (!window.initial_sync) {
+    if (!window.lampa_stack_initial_sync) {
         // Backup.import({ force: true });
-        Backup.startAutoSync();
+        // Backup.startAutoSync();
     }
 
 })();
