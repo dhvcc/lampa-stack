@@ -155,7 +155,7 @@
 
     Lampa.LampaBackup = Backup;
     if (!window.lampa_stack_initial_sync) {
-        // Backup.import({ force: true });
+        Backup.import({ force: true, initial: true });
         // Backup.startAutoSync();
     }
 

@@ -19,27 +19,6 @@
 
   Lampa.Stack.log = log;
 
-  const waitFor = (checkFn, interval = 200, timeout = 3000) => {
-    return new Promise((resolve, reject) => {
-      const startTime = Date.now();
-
-      const check = () => {
-        if (checkFn() === true) {
-          Lampa.Stack.log("Condition met", checkFn.toString());
-          resolve();
-        } else if (Date.now() - startTime >= timeout) {
-          Lampa.Stack.log("Condition not met, timeout", checkFn.toString());
-          reject(new Error('Timeout waiting for condition'));
-        } else {
-          setTimeout(check, interval);
-        }
-      };
-
-      check();
-    });
-  };
-  Lampa.Stack.waitFor = waitFor;
-
   const authenticate = () => {
     return new Promise((resolve, reject) => {
       const token = Lampa.Storage.get('account', '{}').token;
@@ -55,8 +34,8 @@
         headers: {
           'Token': token
         },
-        success: function(response) {
-          if (response.status == 200) {
+        success: function (response) {
+          if (response.success) {
             Lampa.Stack.log('Authentication successful');
             window.lampa_stack_authenticated = true;
             resolve();
@@ -65,7 +44,7 @@
             reject(response.error);
           }
         },
-        error: function(error) {
+        error: function (error) {
           if (error.status !== 200) {
             Lampa.Stack.log('Authentication error:', error);
             reject(error);
@@ -80,24 +59,13 @@
   };
   Lampa.Stack.authenticate = authenticate;
 
-
-  const waitForInitialSync = () => waitFor(() => window.lampa_stack_initial_sync);
-  const waitForAuthenticated = () => waitFor(() => window.lampa_stack_authenticated);
   const DEFAULT_PLUGINS = [
     // Core functionality plugins
-    {
-      url: "/plugins/sync.js",
-      status: 1,
-      name: "Sync",
-      author: "",
-      waitFor: waitForAuthenticated,
-    },
     {
       url: "/plugins/qbittorrent.js",
       status: 1,
       name: "QBitTorrent",
       author: "",
-      waitFor: waitForInitialSync,
     },
     {
       url: "https://cub.red/plugin/tmdb-proxy",
@@ -136,7 +104,6 @@
       status: 1,
       name: "Lampac Online",
       author: "@immisterio",
-      waitFor: waitForInitialSync,
     },
     {
       url: "/plugins/patched/shikimori.js",
@@ -225,15 +192,8 @@
         );
       }
 
-      if (plugin.waitFor) {
-        Lampa.Stack.log("Waiting for plugin:", plugin.name);
-        Lampa.Stack.waitFor(plugin.waitFor).then(() => { Lampa.Stack.log("Plugin waited:", plugin.name); addThisPlugin() }).catch(() => {
-          Lampa.Stack.log("Failed to wait for plugin:", plugin.name, "after", plugin.waitFor.toString());
-        });
-      } else {
-        Lampa.Stack.log("Adding plugin:", plugin.name);
-        addThisPlugin();
-      }
+      Lampa.Stack.log("Adding plugin:", plugin.name);
+      addThisPlugin();
     }
   }
 
@@ -310,10 +270,16 @@
     // Try to authenticate first
     authenticate().then(() => {
       Lampa.Stack.log("Authentication successful, loading plugins");
+      addPluginIfDoesntExist({
+        url: "/plugins/sync.js",
+        status: 1,
+        name: "Sync",
+        author: "",
+      });
     }).catch((err) => {
-      Lampa.Stack.log("Authentication failed, loading plugins anyway");
+      Lampa.Stack.log("Authentication failed, loading plugins anyway", err);
     });
-    
+
     for (let plugin of DEFAULT_PLUGINS) {
       addPluginIfDoesntExist(plugin);
     }
