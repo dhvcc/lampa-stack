@@ -141,6 +141,9 @@
   const DEFAULT_SETTINGS = {
     // Account settings
     account_use: false,  // Disable Cub sync, we're going to use our own backup
+    
+    // Misc
+    screensaver_type: "cub",  // Apple screensavers are having issues with certificates
 
     // TMDB Proxy
     proxy_tmdb: true,
