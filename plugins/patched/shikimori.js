@@ -1025,6 +1025,9 @@
                 dubbers = "\n                    <div class=\"full-descr__info\">\n                        <div class=\"full-descr__info-name\">Fan Dubbers</div>\n                        <div class=\"full-descr__text\">".concat(response.fandubbers.join(', '), "</div>\n                    </div>");
                 subbers = "\n                    <div class=\"full-descr__info\">\n                        <div class=\"full-descr__info-name\">Fan Subbers</div>\n                        <div class=\"full-descr__text\">".concat(response.fansubbers.join(', '), "</div>\n                    </div>");
                 e.object.activity.render().find(".full-descr__right").append(dubbers, subbers);
+                // PATCH START: Fix score rendering
+                response.score = Number.isNaN(response.score) || Number(response.score).toFixed(1)
+                // PATCH END
                 shikimoriRates = "<div class=\"full-start__rate rate--shikimori\"><div>".concat(response.score, "</div><div>Shikimori</div></div>");
                 e.object.activity.render().find(".full-start-new__rate-line").prepend(shikimoriRates);
                 _context.next = 21;
