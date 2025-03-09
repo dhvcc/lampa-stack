@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    const api_url = '/https-anywhere/https://skaz.tv/api.php';
+    const api_url = 'https://skaz.tv/api.php';
   
     function _classCallCheck(instance, Constructor) {
       if (!(instance instanceof Constructor)) {
