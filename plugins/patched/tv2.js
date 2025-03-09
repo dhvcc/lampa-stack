@@ -343,6 +343,7 @@
                   if (j.secuses) {
                     // Replace all http:// with https:// in the response
                     if (typeof j === 'object') {
+                        console
                       // Convert to string and back to handle deep object replacement
                       const jsonStr = JSON.stringify(j);
                       const secureJsonStr = jsonStr.replace(/http:\/\//g, 'https://');
@@ -1612,6 +1613,7 @@
             case 'flussonic-hls':
             case 'flussonic-ts':
             case 'fs':
+              console.log('object, got fs', url)
               // Example stream and catchup URLs
               // stream:  http://ch01.spr24.net/151/mpegts?token=my_token
               // catchup: http://ch01.spr24.net/151/timeshift_abs-{utc}.ts?token=my_token

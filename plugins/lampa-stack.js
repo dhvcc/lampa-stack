@@ -256,9 +256,35 @@
     // Disable ads
     Lampa.Template.add(
       "DisableAds",
-      "<style> .ad-server{display: none;} </style>"
+      "<style> .ad-server{display: none;} .open--premium{display: none;}</style>"
     );
     $("body").append(Lampa.Template.get("DisableAds", {}, true));
+
+    // Delete lampa_notice database from IndexedDB
+    function deleteNoticeDatabase() {
+      if (window.indexedDB) {
+        try {
+          const deleteRequest = window.indexedDB.deleteDatabase('lampa_notice');
+          
+          deleteRequest.onsuccess = function() {
+            console.log('lampa_notice database deleted successfully');
+          };
+          
+          deleteRequest.onerror = function(event) {
+            console.error('Error deleting lampa_notice database:', event);
+          };
+          
+          deleteRequest.onblocked = function() {
+            console.warn('Database deletion was blocked, probably because the database is still in use');
+          };
+        } catch (e) {
+          console.error('Error while trying to delete lampa_notice database:', e);
+        }
+      }
+    }
+    
+    // Execute the database deletion
+    deleteNoticeDatabase();
 
     // Disable Skaz 1.0
     // Lampa.Template.add(
