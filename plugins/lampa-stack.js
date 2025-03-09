@@ -119,7 +119,8 @@
       author: "@lampa",
     },
     {
-      url: "https://skaz.tv/tv.js",
+      // url: "https://skaz.tv/tv.js",
+      url: "/plugins/patched/tv2.js",
       status: 1,
       name: "Телевидение by Skaz",
       author: "@helpiptv",
@@ -223,15 +224,15 @@
         Lampa.Lang.translate("menu_anime"),
         "Shikimori icon\n            \n            Shikimori",
         Lampa.Lang.translate("Shikimori"),
-        Lampa.Lang.translate("ТВ by skaz"),
-        Lampa.Lang.translate("TV by skaz 2.0"),
+        // Lampa.Lang.translate("ТВ by skaz"),
+        // Lampa.Lang.translate("TV by skaz 2.0"),
       ];
 
       let DEFAULT_MENU_HIDE = [
         Lampa.Lang.translate("menu_feed"),
         Lampa.Lang.translate("title_persons"),
         Lampa.Lang.translate("menu_relises"),
-        Lampa.Lang.translate("ТВ by skaz"),
+        // Lampa.Lang.translate("ТВ by skaz"),
       ];
 
       const language = Lampa.Storage.get("language");
@@ -260,11 +261,11 @@
     $("body").append(Lampa.Template.get("DisableAds", {}, true));
 
     // Disable Skaz 1.0
-    Lampa.Template.add(
-      "DisableSkaz10",
-      "<style> [data-component=\"iptvskaz_n\"]{display: none;} </style>"
-    );
-    $("body").append(Lampa.Template.get("DisableSkaz10", {}, true));
+    // Lampa.Template.add(
+    //   "DisableSkaz10",
+    //   "<style> [data-component=\"iptvskaz_n\"]{display: none;} </style>"
+    // );
+    // $("body").append(Lampa.Template.get("DisableSkaz10", {}, true));
   }
 
   function init() {
