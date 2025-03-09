@@ -3,37 +3,22 @@
 
     const localhost = "/lampac-api";
     const syncInterval = 10000; // 10 seconds
-    const exportExcludeKeys = [
-        'vuetorrent_dashboard',
-        'vuetorrent_logs',
-        'vuetorrent_navbar',
-        'region',
-        'screensaver_aerial_items',
-        'activity',
+    const syncIncludeKeys = [
+        // 'account',
+        'favorite',
+        'online_watched_last',
+        'menu_hide',
+        'menu_sort',
+        'noskaz2',
+        'plugins',
+        'iptv_favorite_channels',
+        'iptv_play_history_main_boardsk',
     ]
 
     function getAccountUrl(path) {
         const email = Lampa.Storage.get('account_email');
         if (!email) return null;
         return `${localhost}/storage/${path}?path=backup&account_email=${encodeURIComponent(email)}`;
-    }
-
-    function mergeData(existing, incoming, force = false) {
-        // Handle arrays
-        if (Array.isArray(existing) && Array.isArray(incoming)) {
-            return [...new Set([...existing, ...incoming])];
-        }
-
-        // Handle objects
-        if (typeof existing === 'object' && existing !== null &&
-            typeof incoming === 'object' && incoming !== null) {
-            return force ?
-                $.extend(true, {}, existing, incoming) :
-                $.extend(true, {}, incoming, existing);
-        }
-
-        // For primitive types, use force flag to determine priority
-        return force ? incoming : existing;
     }
 
     const Backup = {
@@ -44,9 +29,11 @@
                 return;
             }
 
-            const data = { ...localStorage };
-            for (let key of exportExcludeKeys) {
-                delete data[key];
+            const data = {};
+            for (let key in localStorage) {
+                if (syncIncludeKeys.includes(key)) {
+                    data[key] = localStorage[key];
+                }
             }
 
             $.ajax({
@@ -77,60 +64,79 @@
             const url = getAccountUrl('get');
             if (!url) {
                 Lampa.Stack.log('No email set, skipping import');
-                return;
+                return Promise.reject('No email set');
             }
 
-            $.ajax({
-                url: url,
-                type: 'GET',
-                success: function (response) {
-                    if (response.data) {
-                        const data = JSON.parse(response.data);
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function (response) {
+                        if (response.data) {
+                            const data = JSON.parse(response.data);
 
-                        for (let key in data) {
-                            try {
-                                let existingValue = localStorage.getItem(key);
-                                let incomingValue = data[key];
+                            for (let key in data) {
+                                if (!syncIncludeKeys.includes(key)) {
+                                    continue;
+                                }
+                                try {
+                                    let existingValue = localStorage.getItem(key);
+                                    let incomingValue = data[key];
 
-                                // Try to parse JSON values
-                                try { existingValue = JSON.parse(existingValue); } catch (e) { }
-                                try { incomingValue = JSON.parse(incomingValue); } catch (e) { }
+                                    // Try to parse JSON values
+                                    try { existingValue = JSON.parse(existingValue); } catch (e) { }
+                                    try { incomingValue = JSON.parse(incomingValue); } catch (e) { }
 
-                                // Merge values based on their types
-                                const mergedValue = mergeData(existingValue, incomingValue, options.force);
+                                    // Merge values based on their types
+                                    let mergedValue;
+                                    if (typeof existingValue === 'object' && existingValue !== null && 
+                                        typeof incomingValue === 'object' && incomingValue !== null) {
+                                        console.log('cloneDeep', key, existingValue, incomingValue);
+                                        mergedValue = merge(existingValue, incomingValue);
+                                    } else {
+                                        // For primitive types, use force flag to determine priority
+                                        mergedValue = options.force ? incomingValue : existingValue;
+                                    }
 
-                                // Store the result back
-                                localStorage.setItem(key,
-                                    typeof mergedValue === 'object' ?
-                                        JSON.stringify(mergedValue) :
-                                        mergedValue
-                                );
-                            } catch (e) {
-                                Lampa.Stack.log('Error merging key:', key, e);
-                                // On error, fallback to simple override based on force flag
-                                if (options.force) {
-                                    localStorage.setItem(key, data[key]);
+                                    // Store the result back
+                                    localStorage.setItem(key,
+                                        typeof mergedValue === 'object' ?
+                                            JSON.stringify(mergedValue) :
+                                            mergedValue
+                                    );
+                                } catch (e) {
+                                    Lampa.Stack.log('Error merging key:', key, e);
+                                    // On error, fallback to simple override based on force flag
+                                    if (options.force) {
+                                        localStorage.setItem(key, data[key]);
+                                    }
                                 }
                             }
-                        }
-                        Lampa.Stack.log('Import successful');
+                            Lampa.Stack.log('Import successful');
 
-                        if (options.initial) {
-                            window.lampa_stack_initial_sync = true;
+                            if (options.initial) {
+                                window.lampa_stack_initial_sync = true;
+                            }
+                            
+                            resolve(response);
+                        } else {
+                            resolve(null);
                         }
-                    }
-                },
-                error: function (error) {
-                    console.log('[Backup] Import error:', error);
-                },
+                    },
+                    error: function (error) {
+                        console.log('[Backup] Import error:', error);
+                        reject(error);
+                    },
+                });
             });
         },
 
         startAutoSync: function () {
             // Set up interval for continuous sync
             setInterval(() => {
-                this.import();
-                this.export();
+                this.import().then(() => {
+                    this.export();
+                });
             }, syncInterval);
         }
     };
@@ -153,9 +159,20 @@
     }
     disableCubSync();
 
-    Lampa.LampaBackup = Backup;
+    Lampa.Stack.Backup = Backup;
+
+    if (!document.querySelector('script[src*="lodash.merge"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/lodash.merge@4.6.2/index.min.js';
+      document.head.appendChild(script);
+      Lampa.Stack.log('Added lodash.merge script to head');
+    } else {
+      Lampa.Stack.log('lodash.merge script already exists');
+    }
+
     if (!window.lampa_stack_initial_sync) {
         Backup.import({ force: true, initial: true });
+        // ONLY MANUAL FOR NOW. IDFK HOW THIS WILL WORK, TOO JANKY
         // Backup.startAutoSync();
     }
 

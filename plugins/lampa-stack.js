@@ -157,9 +157,9 @@
     vpn_checked_ready: true,
     torrserver_url: window.location.origin + "/torrserver",
     torrserver_auth: false,
-    jackett_url: "http://jacred.xyz",
+    jackett_url: "jacred.xyz",
     jackett_key: '',
-    jackett_url2: "http://redapi.cfhttp.top",
+    jackett_url2: "redapi.cfhttp.top",
     jackett_key2: "1",
   };
 
