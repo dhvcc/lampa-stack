@@ -288,7 +288,23 @@
             var account = Lampa.Storage.get('account', '{}');
           //  if (!account.token) return reject();
   
-            _this.network.silent(_this.api_url + '?ua='+Lampa.Storage.cache("skazua")+'&cdn='+Lampa.Storage.cache("skazcdn")+'&ero='+Lampa.Storage.cache("noporn")+'&email=MTMzN2t3aXpAZ21haWwuY29t&' + method, resolve, reject);
+            _this.network.silent(_this.api_url + '?ua='+Lampa.Storage.cache("skazua")+'&cdn='+Lampa.Storage.cache("skazcdn")+'&ero='+Lampa.Storage.cache("noporn")+'&email=MTMzN2t3aXpAZ21haWwuY29t&' + method,
+            function success(j) {
+                console.log('Player', 'success', j);
+                if (j.secuses) {
+                  // Replace all http:// with https:// in the response
+                  if (typeof j === 'object') {
+                    // Convert to string and back to handle deep object replacement
+                    const jsonStr = JSON.stringify(j);
+                    const secureJsonStr = jsonStr.replace(/http:\/\//g, 'https://');
+                    j = JSON.parse(secureJsonStr);
+                  }
+                  resolve(j);
+                } else {
+                  reject();
+                }
+              },
+              reject);
           });
         }
       }, {
@@ -323,7 +339,19 @@
                 profile: '28399'
                 },
                 success: function success(j) {
-                  if (j.secuses) resolve(j);else reject();
+                    console.log('Player', 'success', j);
+                  if (j.secuses) {
+                    // Replace all http:// with https:// in the response
+                    if (typeof j === 'object') {
+                      // Convert to string and back to handle deep object replacement
+                      const jsonStr = JSON.stringify(j);
+                      const secureJsonStr = jsonStr.replace(/http:\/\//g, 'https://');
+                      j = JSON.parse(secureJsonStr);
+                    }
+                    resolve(j);
+                  } else {
+                    reject();
+                  }
                 },
                 error: reject
               });
