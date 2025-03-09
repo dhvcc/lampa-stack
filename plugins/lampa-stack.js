@@ -276,6 +276,14 @@
           
           deleteRequest.onblocked = function() {
             console.warn('Database deletion was blocked, probably because the database is still in use');
+            // Force close any connections to the database
+            const closeRequest = window.indexedDB.open('lampa_notice');
+            closeRequest.onsuccess = function(event) {
+              const db = event.target.result;
+              db.close();
+              // Try deleting again
+              window.indexedDB.deleteDatabase('lampa_notice');
+            };
           };
         } catch (e) {
           console.error('Error while trying to delete lampa_notice database:', e);
