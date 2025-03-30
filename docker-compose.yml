@@ -56,7 +56,7 @@ services:
 
   lampac-api:
     # image: ghcr.io/dhvcc/lampac:latest
-    image: immisterio/lampac
+    image: immisterio/lampac:latest
     restart: unless-stopped
     volumes:
       - ./docker/lampac/manifest.json:/home/module/manifest.json:ro
