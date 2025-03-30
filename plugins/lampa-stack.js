@@ -100,7 +100,7 @@
       author: "@lme_chat",
     },
     {
-      url: "/plugins/patched/lampac-online.js",
+      url: "/lampac-api/lampac-api/online.js",
       status: 1,
       name: "Lampac Online",
       author: "@immisterio",

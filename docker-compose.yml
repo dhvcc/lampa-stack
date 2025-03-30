@@ -60,10 +60,11 @@ services:
     restart: unless-stopped
     volumes:
       - ./docker/lampac/manifest.json:/home/module/manifest.json:ro
-      - ./docker/lampac/init.conf:/home/init.conf:ro
     expose:
       - "9118"
-
+    ports:
+      - "9118:9118"
+    entrypoint: ["/bin/sh", "-c", "echo '{\"puppeteer\": {\"executablePath\": \"/usr/bin/chromium\"}, \"localip\": false, \"listenhost\": \"${LAMPA_STACK_DOMAIN}/lampac-api\", \"listenscheme\": \"${LAMPA_STACK_SCHEME}\"}' > /home/init.conf && /usr/share/dotnet/dotnet Lampac.dll"]
   lampa:
     restart: unless-stopped
     image: ghcr.io/dhvcc/lampa:latest
