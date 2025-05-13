@@ -64,6 +64,7 @@ services:
       - "9118"
     ports:
       - "9118:9118"
+    labels: [ "com.centurylinklabs.watchtower.scope=lampac" ]
     entrypoint: ["/bin/sh", "-c", "echo '{\"puppeteer\": {\"executablePath\": \"/usr/bin/chromium\"}, \"localip\": false, \"listenhost\": \"${LAMPA_STACK_DOMAIN}/lampac-api\", \"listenscheme\": \"${LAMPA_STACK_SCHEME}\"}' > /home/init.conf && /usr/share/dotnet/dotnet Lampac.dll"]
   lampa:
     restart: unless-stopped
@@ -80,11 +81,10 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 86400 --label-enable --include-stopped lampac-api
+    labels: [ "com.centurylinklabs.watchtower.scope=lampac" ]
+    command: --schedule "0 0 4 * * *" --include-stopped --cleanup --scope lampac
     environment:
-      - WATCHTOWER_CLEANUP=true
-      - WATCHTOWER_LABEL_ENABLE=true
-
+      - WATCHTOWER_DEBUG=true
 volumes:
   torrserver-cache:
   torrserver-config:
