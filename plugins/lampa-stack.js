@@ -123,28 +123,185 @@
         // $("body").append(Lampa.Template.get("DisableSkaz10", {}, true));
       }
 
+      function setupHttpsInterception() {
+        log("Setting up comprehensive HTTPS interception");
+        
+        // Get current domain for proxy
+        const proxyBase = window.location.protocol + "//" + window.location.host + "/proxy?url=";
+        
+        function makeSecure(url) {
+          if (typeof url === 'string' && url.startsWith('http://')) {
+            log("Proxying HTTP URL:", url);
+            return proxyBase + encodeURIComponent(url);
+          }
+          return url;
+        }
+
+        // 1. Intercept fetch
+        if (window.fetch && !window.fetch._lampaPatched) {
+          const originalFetch = window.fetch;
+          window.fetch = function(url, options) {
+            return originalFetch(makeSecure(url), options);
+          };
+          window.fetch._lampaPatched = true;
+          log("Patched fetch()");
+        }
+
+        // 2. Intercept XMLHttpRequest
+        if (window.XMLHttpRequest && !XMLHttpRequest.prototype.open._lampaPatched) {
+          const originalOpen = XMLHttpRequest.prototype.open;
+          XMLHttpRequest.prototype.open = function(method, url, async, user, password) {
+            return originalOpen.call(this, method, makeSecure(url), async, user, password);
+          };
+          XMLHttpRequest.prototype.open._lampaPatched = true;
+          log("Patched XMLHttpRequest");
+        }
+
+        // 3. Intercept video element src
+        if (window.HTMLVideoElement && !HTMLVideoElement.prototype.setAttribute._lampaPatched) {
+          const originalVideoSetAttribute = HTMLVideoElement.prototype.setAttribute;
+          HTMLVideoElement.prototype.setAttribute = function(name, value) {
+            if (name === 'src' || name === 'data-src') {
+              value = makeSecure(value);
+            }
+            return originalVideoSetAttribute.call(this, name, value);
+          };
+          HTMLVideoElement.prototype.setAttribute._lampaPatched = true;
+
+          // Also patch the src property directly
+          const originalSrcDescriptor = Object.getOwnPropertyDescriptor(HTMLVideoElement.prototype, 'src') || 
+                                       Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'src');
+          if (originalSrcDescriptor && originalSrcDescriptor.set && !originalSrcDescriptor.set._lampaPatched) {
+            Object.defineProperty(HTMLVideoElement.prototype, 'src', {
+              set: function(value) {
+                originalSrcDescriptor.set.call(this, makeSecure(value));
+              },
+              get: originalSrcDescriptor.get,
+              configurable: true
+            });
+            originalSrcDescriptor.set._lampaPatched = true;
+          }
+          log("Patched HTMLVideoElement");
+        }
+
+        // 4. Intercept audio element src
+        if (window.HTMLAudioElement && !HTMLAudioElement.prototype.setAttribute._lampaPatched) {
+          const originalAudioSetAttribute = HTMLAudioElement.prototype.setAttribute;
+          HTMLAudioElement.prototype.setAttribute = function(name, value) {
+            if (name === 'src' || name === 'data-src') {
+              value = makeSecure(value);
+            }
+            return originalAudioSetAttribute.call(this, name, value);
+          };
+          HTMLAudioElement.prototype.setAttribute._lampaPatched = true;
+          log("Patched HTMLAudioElement");
+        }
+
+        // 5. Watch for HLS.js and other video libraries
+        function patchHlsJs() {
+          if (window.Hls && !window.Hls._lampaPatched) {
+            const originalLoadSource = window.Hls.prototype.loadSource;
+            window.Hls.prototype.loadSource = function(url) {
+              log("HLS.js loading source:", url);
+              return originalLoadSource.call(this, makeSecure(url));
+            };
+            window.Hls._lampaPatched = true;
+            log("Patched HLS.js");
+          }
+        }
+
+        // 6. Watch for dynamically added elements
+        function setupMutationObserver() {
+          const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+              mutation.addedNodes.forEach(function(node) {
+                if (node.nodeType === 1) { // Element node
+                  // Check for video/audio elements with HTTP sources
+                  const mediaElements = node.querySelectorAll ? 
+                    node.querySelectorAll('video[src^="http://"], audio[src^="http://"], source[src^="http://"]') : [];
+                  
+                  for (let i = 0; i < mediaElements.length; i++) {
+                    const el = mediaElements[i];
+                    const src = el.getAttribute('src');
+                    if (src && src.startsWith('http://')) {
+                      log("Found HTTP media element, proxying:", src);
+                      el.setAttribute('src', makeSecure(src));
+                    }
+                  }
+                  
+                  // Check if the node itself is a media element
+                  if (node.tagName === 'VIDEO' || node.tagName === 'AUDIO' || node.tagName === 'SOURCE') {
+                    const src = node.getAttribute('src');
+                    if (src && src.startsWith('http://')) {
+                      log("Found HTTP media node, proxying:", src);
+                      node.setAttribute('src', makeSecure(src));
+                    }
+                  }
+                }
+              });
+            });
+          });
+          
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true
+          });
+          log("MutationObserver active");
+        }
+
+        // 7. Patch URL constructor for completeness
+        if (window.URL && !window.URL._lampaPatched) {
+          const originalURL = window.URL;
+          window.URL = function(url, base) {
+            if (typeof url === 'string' && url.startsWith('http://')) {
+              url = makeSecure(url);
+            }
+            return new originalURL(url, base);
+          };
+          // Copy static methods
+          Object.setPrototypeOf(window.URL, originalURL);
+          Object.getOwnPropertyNames(originalURL).forEach(function(name) {
+            if (typeof originalURL[name] === 'function') {
+              window.URL[name] = originalURL[name];
+            }
+          });
+          window.URL._lampaPatched = true;
+          log("Patched URL constructor");
+        }
+
+        // Initialize everything
+        patchHlsJs();
+        setupMutationObserver();
+        
+        // Re-check for HLS.js periodically (in case it loads later)
+        setTimeout(patchHlsJs, 1000);
+        setTimeout(patchHlsJs, 5000);
+        
+        log("HTTPS interception setup complete");
+      }
+
       function initLampaStack() {
         log("Initializing plugins and settings");
 
         // Add plugins
         var plugins_to_load = [];
-        // for (let plugin of DEFAULT_PLUGINS) {
-        //   var plugins = Lampa.Plugins.get();
-        //   if (!plugins.find(function(p) { return p.url === plugin.url; })) {
-        //     addPluginIfDoesntExist(plugin);
-        //     plugins_to_load.push(plugin.url);
-        //   }
-        // }
+        for (let plugin of DEFAULT_PLUGINS) {
+          var plugins = Lampa.Plugins.get();
+          if (!plugins.find(function(p) { return p.url === plugin.url; })) {
+            addPluginIfDoesntExist(plugin);
+            plugins_to_load.push(plugin.url);
+          }
+        }
 
         // Load new plugins
-        // if (plugins_to_load.length) {
-        //   log("Loading new plugins:", plugins_to_load);
-        //   Lampa.Utils.putScript(plugins_to_load, function() {
-        //     log("Plugins loaded successfully");
-        //   }, function() {
-        //     log("Error loading some plugins");
-        //   }, function() {}, true);
-        // }
+        if (plugins_to_load.length) {
+          log("Loading new plugins:", plugins_to_load);
+          Lampa.Utils.putScript(plugins_to_load, function() {
+            log("Plugins loaded successfully");
+          }, function() {
+            log("Error loading some plugins");
+          }, function() {}, true);
+        }
 
         // Apply settings
         for (let key in DEFAULT_SETTINGS) {
@@ -152,6 +309,7 @@
         }
 
         disableUnwantedElements();
+        setupHttpsInterception();
 
         log("Initialization complete");
       }
