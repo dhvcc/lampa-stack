@@ -2,26 +2,26 @@
   "use strict";
 
   console.originalLog = console.log;
-  const log = function() {
+  const internalLog = function() {
     let args = Array.from(arguments);
     if (args.length < 3) {
       args.push("");
     }
     console.originalLog.apply(console, args);
   };
-  console.log = function() {
+  const log = function() {
     let args = Array.from(arguments);
     args.unshift("Lampa Stack");
-    log.apply(console, args);
+    internalLog.apply(console, args);
   };
 
-  console.log("Starting");
+  log("Starting");
 
   // Wait for Lampa to be available
   var timer = setInterval(function() {
     if (typeof Lampa !== 'undefined') {
       clearInterval(timer);
-      console.log("Lampa detected, initializing");
+      log("Lampa detected, initializing");
 
       const DEFAULT_PLUGINS = [
         {
@@ -93,7 +93,7 @@
 
       function setSettingIfNotExists(key, value) {
         if (Lampa.Storage.get(key, "") === "") {
-          console.log("Setting default setting: " + key + "=" + value + ", currently set to " + typeof Lampa.Storage.get(key) + "=" + Lampa.Storage.get(key));
+          log("Setting default setting: " + key + "=" + value + ", currently set to " + typeof Lampa.Storage.get(key) + "=" + Lampa.Storage.get(key));
           Lampa.Storage.set(key, value);
         }
       }
@@ -101,7 +101,7 @@
       function addPluginIfDoesntExist(plugin) {
         var plugins = Lampa.Plugins.get();
         if (!plugins.find(function(p) { return p.url === plugin.url; })) {
-          console.log("Adding plugin:", plugin.name);
+          log("Adding plugin:", plugin.name);
           Lampa.Plugins.add(plugin);
           Lampa.Plugins.save();
         }
@@ -124,7 +124,7 @@
       }
 
       function initLampaStack() {
-        console.log("Initializing plugins and settings");
+        log("Initializing plugins and settings");
 
         // Add plugins
         var plugins_to_load = [];
@@ -138,11 +138,11 @@
 
         // Load new plugins
         if (plugins_to_load.length) {
-          console.log("Loading new plugins:", plugins_to_load);
+          log("Loading new plugins:", plugins_to_load);
           Lampa.Utils.putScript(plugins_to_load, function() {
-            console.log("Plugins loaded successfully");
+            log("Plugins loaded successfully");
           }, function() {
-            console.log("Error loading some plugins");
+            log("Error loading some plugins");
           }, function() {}, true);
         }
 
@@ -153,7 +153,7 @@
 
         disableUnwantedElements();
 
-        console.log("Initialization complete");
+        log("Initialization complete");
       }
 
       initLampaStack();
