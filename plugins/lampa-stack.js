@@ -148,18 +148,27 @@
             }
             
             if (targetUrl.startsWith('http://')) {
-              log("Proxying HTTP URL:", targetUrl);
-              return proxyBase + targetUrl;
+              console.warn("🔒 Lampa Stack: Intercepting HTTP URL:", targetUrl);
+              var proxiedUrl = proxyBase + targetUrl;
+              console.warn("🔒 Lampa Stack: Redirecting to:", proxiedUrl);
+              return proxiedUrl;
             }
           }
           return url;
         }
+        
+        // Global flag to track interception status
+        window.lampaStackInterceptionActive = true;
 
         // 1. Intercept fetch
         if (window.fetch && !window.fetch._lampaPatched) {
           const originalFetch = window.fetch;
           window.fetch = function(url, options) {
-            return originalFetch(makeSecure(url), options);
+            var secureUrl = makeSecure(url);
+            if (secureUrl !== url) {
+              console.warn("🔒 Lampa Stack: fetch intercepted:", url, "→", secureUrl);
+            }
+            return originalFetch(secureUrl, options);
           };
           window.fetch._lampaPatched = true;
           log("Patched fetch()");
@@ -169,9 +178,23 @@
         if (window.XMLHttpRequest && !XMLHttpRequest.prototype.open._lampaPatched) {
           const originalOpen = XMLHttpRequest.prototype.open;
           XMLHttpRequest.prototype.open = function(method, url, async, user, password) {
-            return originalOpen.call(this, method, makeSecure(url), async, user, password);
+            var secureUrl = makeSecure(url);
+            if (secureUrl !== url) {
+              console.warn("🔒 Lampa Stack: XMLHttpRequest intercepted:", url, "→", secureUrl);
+            }
+            return originalOpen.call(this, method, secureUrl, async, user, password);
           };
           XMLHttpRequest.prototype.open._lampaPatched = true;
+          
+          // Also intercept the send method to catch any missed URLs
+          const originalSend = XMLHttpRequest.prototype.send;
+          XMLHttpRequest.prototype.send = function(data) {
+            if (this._url && this._url.startsWith('http://')) {
+              console.error("🚨 Lampa Stack: Missed HTTP request in XMLHttpRequest.send:", this._url);
+            }
+            return originalSend.call(this, data);
+          };
+          
           log("Patched XMLHttpRequest");
         }
 
@@ -287,6 +310,30 @@
           log("Patched URL constructor");
         }
 
+        // 8. Add global error handler for mixed content
+        window.addEventListener('error', function(e) {
+          if (e.message && e.message.indexOf('Mixed Content') !== -1) {
+            console.error("🚨 Lampa Stack: Mixed content error detected:", e.message);
+          }
+        });
+        
+        // 9. Monitor all network requests (if available)
+        if (window.PerformanceObserver) {
+          try {
+            const observer = new PerformanceObserver(function(list) {
+              list.getEntries().forEach(function(entry) {
+                if (entry.name && entry.name.startsWith('http://')) {
+                  console.error("🚨 Lampa Stack: Unintercepted HTTP request detected:", entry.name);
+                }
+              });
+            });
+            observer.observe({entryTypes: ['resource']});
+            log("Performance observer active");
+          } catch (e) {
+            log("Performance observer not available");
+          }
+        }
+        
         // Initialize everything
         patchHlsJs();
         setupMutationObserver();
@@ -294,6 +341,15 @@
         // Re-check for HLS.js periodically (in case it loads later)
         setTimeout(patchHlsJs, 1000);
         setTimeout(patchHlsJs, 5000);
+        
+        // Final check - log interception status
+        setTimeout(function() {
+          console.warn("🔒 Lampa Stack: Interception status check");
+          console.warn("🔒 fetch patched:", !!window.fetch._lampaPatched);
+          console.warn("🔒 XMLHttpRequest patched:", !!XMLHttpRequest.prototype.open._lampaPatched);
+          console.warn("🔒 HTMLVideoElement patched:", !!HTMLVideoElement.prototype.setAttribute._lampaPatched);
+          console.warn("🔒 HLS.js patched:", !!window.Hls && !!window.Hls._lampaPatched);
+        }, 2000);
         
         log("HTTPS interception setup complete");
       }
@@ -336,6 +392,14 @@
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/plugins/sw.js');
       }
+
+      // Interception status check
+      setTimeout(function() {
+        log("Interception status check");
+        log("fetch patched:", !!window.fetch._lampaPatched);
+        log("XMLHttpRequest patched:", !!XMLHttpRequest.prototype.open._lampaPatched);
+        log("HTMLVideoElement patched:", !!HTMLVideoElement.prototype.setAttribute._lampaPatched);
+      }, 2000);
     }
   }, 200);
 })();
