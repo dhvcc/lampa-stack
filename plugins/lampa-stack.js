@@ -127,12 +127,12 @@
         log("Setting up comprehensive HTTPS interception");
         
         // Get current domain for proxy
-        const proxyBase = window.location.protocol + "//" + window.location.host + "/proxy?url=";
+        const proxyBase = window.location.protocol + "//" + window.location.host + "/proxy/";
         
         function makeSecure(url) {
           if (typeof url === 'string') {
             // Check if it's already our proxy URL
-            if (url.indexOf('/proxy?url=') !== -1) {
+            if (url.indexOf('/proxy/http') !== -1) {
               return url;
             }
             
@@ -149,7 +149,7 @@
             
             if (targetUrl.startsWith('http://')) {
               log("Proxying HTTP URL:", targetUrl);
-              return proxyBase + encodeURIComponent(targetUrl);
+              return proxyBase + targetUrl;
             }
           }
           return url;
