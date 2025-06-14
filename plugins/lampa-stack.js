@@ -168,7 +168,17 @@
             if (secureUrl !== url) {
               console.warn("🔒 Lampa Stack: fetch intercepted:", url, "→", secureUrl);
             }
-            return originalFetch(secureUrl, options);
+            
+            // Also intercept redirects in the response
+            return originalFetch(secureUrl, options).then(function(response) {
+              // Check if response has a redirect with HTTP URL
+              if (response.redirected && response.url && response.url.startsWith('http://')) {
+                console.warn("🔒 Lampa Stack: Redirect detected to HTTP URL:", response.url);
+                // Re-fetch with secure URL
+                return originalFetch(makeSecure(response.url), options);
+              }
+              return response;
+            });
           };
           window.fetch._lampaPatched = true;
           log("Patched fetch()");
