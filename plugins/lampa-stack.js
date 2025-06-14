@@ -157,6 +157,9 @@
       }
 
       initLampaStack();
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/plugins/sw.js');
+      }
     }
   }, 200);
 })();
