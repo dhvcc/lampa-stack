@@ -128,23 +128,23 @@
 
         // Add plugins
         var plugins_to_load = [];
-        for (let plugin of DEFAULT_PLUGINS) {
-          var plugins = Lampa.Plugins.get();
-          if (!plugins.find(function(p) { return p.url === plugin.url; })) {
-            addPluginIfDoesntExist(plugin);
-            plugins_to_load.push(plugin.url);
-          }
-        }
+        // for (let plugin of DEFAULT_PLUGINS) {
+        //   var plugins = Lampa.Plugins.get();
+        //   if (!plugins.find(function(p) { return p.url === plugin.url; })) {
+        //     addPluginIfDoesntExist(plugin);
+        //     plugins_to_load.push(plugin.url);
+        //   }
+        // }
 
         // Load new plugins
-        if (plugins_to_load.length) {
-          log("Loading new plugins:", plugins_to_load);
-          Lampa.Utils.putScript(plugins_to_load, function() {
-            log("Plugins loaded successfully");
-          }, function() {
-            log("Error loading some plugins");
-          }, function() {}, true);
-        }
+        // if (plugins_to_load.length) {
+        //   log("Loading new plugins:", plugins_to_load);
+        //   Lampa.Utils.putScript(plugins_to_load, function() {
+        //     log("Plugins loaded successfully");
+        //   }, function() {
+        //     log("Error loading some plugins");
+        //   }, function() {}, true);
+        // }
 
         // Apply settings
         for (let key in DEFAULT_SETTINGS) {
