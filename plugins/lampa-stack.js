@@ -130,9 +130,27 @@
         const proxyBase = window.location.protocol + "//" + window.location.host + "/proxy?url=";
         
         function makeSecure(url) {
-          if (typeof url === 'string' && url.startsWith('http://')) {
-            log("Proxying HTTP URL:", url);
-            return proxyBase + encodeURIComponent(url);
+          if (typeof url === 'string') {
+            // Check if it's already our proxy URL
+            if (url.indexOf('/proxy?url=') !== -1) {
+              return url;
+            }
+            
+            // Handle both encoded and non-encoded HTTP URLs
+            var targetUrl = url;
+            if (url.startsWith('http%3A%2F%2F')) {
+              // URL is encoded, decode it first
+              try {
+                targetUrl = decodeURIComponent(url);
+              } catch (e) {
+                targetUrl = url;
+              }
+            }
+            
+            if (targetUrl.startsWith('http://')) {
+              log("Proxying HTTP URL:", targetUrl);
+              return proxyBase + encodeURIComponent(targetUrl);
+            }
           }
           return url;
         }
