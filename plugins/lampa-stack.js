@@ -38,6 +38,7 @@
         Lampa.Lang.translate("title_subscribes"),
         Lampa.Lang.translate("menu_history"),
         Lampa.Lang.translate("menu_torrents"),
+        "DLNA",
         Lampa.Lang.translate("menu_timeline"),
         Lampa.Lang.translate("menu_movies"),
         Lampa.Lang.translate("title_persons"),
@@ -66,9 +67,6 @@
 
         // Misc
         screensaver_type: "cub",  // Apple screensavers are having issues with certificates
-
-        // TMDB Proxy
-        proxy_tmdb: true,
 
         // Torrent settings
         parser_use: true,
