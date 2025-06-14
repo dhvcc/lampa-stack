@@ -1,80 +1,25 @@
 services:
-  nginx:
-    build:
-      context: docker/nginx
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    command: ["sh", "-c", "envsubst < /etc/nginx/conf.d/variables.conf.template > /etc/nginx/conf.d/variables.conf && nginx -g 'daemon off;'"]
-    environment:
-      - JWT_SECRET=${LAMPA_STACK_AUTH_JWT_SECRET}
-      - DOLLAR=$$
-      - LAMPA_STACK_REAL_PROTOCOL=${LAMPA_STACK_REAL_PROTOCOL:-http}
-    ports:
-      - "${LAMPA_STACK_PORT:-80}:80"
-    volumes:
-      - ./plugins:/app/plugins:ro
-      - nginx-auth:/etc/nginx/auth
-    depends_on:
-      - torrserver
-      - qbittorrent
-      - lampa
-      - lampac-api
-
-  torrserver:
-    image: ghcr.io/dhvcc/torrserver:latest
-    restart: unless-stopped
-    environment:
-      - TS_PORT=5665
-      - TS_DONTKILL=1
-      - TS_HTTPAUTH=0
-      - TS_CONF_PATH=/opt/ts/config
-      - TS_TORR_DIR=/opt/ts/torrents
-      - TS_DOWNLOAD_DIR=/downloads
-    volumes:
-      - torrserver-cache:/opt/ts/torrents
-      - torrserver-config:/opt/ts/config
-      - qbittorrent-data:/downloads:ro
-    expose:
-      - '5665'
-
-  qbittorrent:
-    restart: unless-stopped
-    build:
-      dockerfile: Dockerfile
-      context: docker/qbittorrent
-    expose:
-      - "5666"
-    environment:
-      - PUID=0
-      - PGID=0
-      - UMASK=002
-      - TZ=Etc/UTC
-      - WEBUI_PORTS=5666/tcp,5666/udp
-    volumes:
-      - qbittorrent-config:/config
-      - qbittorrent-data:/app/qBittorrent/downloads
-
-  lampac-api:
-    # image: ghcr.io/dhvcc/lampac:latest
+  lampac:
     image: immisterio/lampac:latest
     restart: unless-stopped
     volumes:
       - ./docker/lampac/manifest.json:/home/module/manifest.json:ro
     expose:
       - "9118"
-    ports:
-      - "9118:9118"
     labels: [ "com.centurylinklabs.watchtower.scope=lampac" ]
-    entrypoint: ["/bin/sh", "-c", "echo '{\"puppeteer\": {\"executablePath\": \"/usr/bin/chromium\"}, \"localip\": false, \"listenhost\": \"${LAMPA_STACK_DOMAIN}/lampac-api\", \"listenscheme\": \"${LAMPA_STACK_SCHEME}\"}' > /home/init.conf && /usr/share/dotnet/dotnet Lampac.dll"]
-  lampa:
+    entrypoint: ["/bin/sh", "-c", "echo '{\"frontend\": \"cloudflare\", \"puppeteer\": {\"executablePath\": \"/usr/bin/chromium\"}, \"localip\": false, \"listenhost\": \"${LAMPA_STACK_DOMAIN}\", \"listenscheme\": \"${LAMPA_STACK_SCHEME}\"}' > /home/init.conf && /usr/share/dotnet/dotnet Lampac.dll"]
+
+  nginx:
+    build:
+      context: docker/nginx
+      dockerfile: Dockerfile
     restart: unless-stopped
-    image: ghcr.io/dhvcc/lampa:latest
-    expose:
-      - 3000
+    ports:
+      - "${LAMPA_STACK_PORT:-80}:80"
+    volumes:
+      - ./plugins:/app/plugins:ro
     depends_on:
-      - torrserver
-      - qbittorrent
-      - lampac-api
+      - lampac
 
   watchtower:
     image: containrrr/watchtower
@@ -85,15 +30,3 @@ services:
     command: --schedule "0 0 4 * * *" --include-stopped --cleanup --scope lampac
     environment:
       - WATCHTOWER_DEBUG=true
-volumes:
-  torrserver-cache:
-  torrserver-config:
-  nginx-auth:
-  qbittorrent-config:
-  qbittorrent-data:
-    # Mount data to already existing folder
-    # driver: local
-    # driver_opts:
-    #   type: 'none'
-    #   o: 'bind'
-    #   device: '/path/to/existing/folder'

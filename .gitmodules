@@ -1,17 +1,5 @@
-[submodule "lampa"]
-	path = lampa
-	url = https://github.com/dhvcc/lampa.git
-	branch = lampa-stack
-	update = merge
-
-[submodule "torrserver"]
-	path = torrserver
-	url = https://github.com/dhvcc/torrserver.git
-	branch = lampa-stack
-	update = merge
-
 [submodule "lampac"]
 	path = lampac
-	url = https://github.com/dhvcc/lampac.git
-	branch = lampa-stack
+	url = https://github.com/immisterio/Lampac.git
+	branch = main
 	update = merge

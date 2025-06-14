@@ -1,3 +1,0 @@
-map ${DOLLAR}host ${DOLLAR}real_scheme {
-    default ${LAMPA_STACK_REAL_PROTOCOL};
-}
