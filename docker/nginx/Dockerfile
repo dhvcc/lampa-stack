@@ -13,8 +13,6 @@ RUN apt-get update && apt-get install -y git \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 
-# Create directory for Lua modules
-RUN mkdir -p /etc/nginx/lua
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf

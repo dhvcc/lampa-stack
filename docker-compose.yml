@@ -10,14 +10,13 @@ services:
     entrypoint: ["/bin/sh", "-c", "echo '{\"frontend\": \"cloudflare\", \"puppeteer\": {\"executablePath\": \"/usr/bin/chromium\"}, \"localip\": false, \"listenhost\": \"${LAMPA_STACK_DOMAIN}\", \"listenscheme\": \"${LAMPA_STACK_SCHEME}\"}' > /home/init.conf && /usr/share/dotnet/dotnet Lampac.dll"]
 
   nginx:
-    build:
-      context: docker/nginx
-      dockerfile: Dockerfile
+    image: openresty/openresty:focal
     restart: unless-stopped
     ports:
       - "${LAMPA_STACK_PORT:-80}:80"
     volumes:
       - ./plugins:/app/plugins:ro
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - lampac
 
