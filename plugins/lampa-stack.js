@@ -23,28 +23,6 @@
       clearInterval(timer);
       log("Lampa detected, initializing");
 
-      const DEFAULT_PLUGINS = [
-        {
-          url: "https://nb557.github.io/plugins/rating.js",
-          status: 1,
-          name: "Рейтинг КиноПоиск и IMDB",
-          author: "@t_anton",
-        },
-        // {
-        //   url: "/plugins/patched/shikimori.js",
-        //   status: 1,
-        //   name: "Shikimori catalog",
-        //   author: "@lme_chat",
-        // },
-        // {
-        //   // url: "https://skaz.tv/tv.js",
-        //   url: "/plugins/patched/tv2.js",
-        //   status: 1,
-        //   name: "Телевидение by Skaz",
-        //   author: "@helpiptv",
-        // },
-      ];
-
       const DEFAULT_MENU_SORT = [
         Lampa.Lang.translate("menu_main"),
         Lampa.Lang.translate("menu_feed"),
@@ -98,15 +76,6 @@
         }
       }
 
-      function addPluginIfDoesntExist(plugin) {
-        var plugins = Lampa.Plugins.get();
-        if (!plugins.find(function(p) { return p.url === plugin.url; })) {
-          log("Adding plugin:", plugin.name);
-          Lampa.Plugins.add(plugin);
-          Lampa.Plugins.save();
-        }
-      }
-
       function disableUnwantedElements() {
         // Disable ads
         Lampa.Template.add(
@@ -123,269 +92,8 @@
         // $("body").append(Lampa.Template.get("DisableSkaz10", {}, true));
       }
 
-      function setupHttpsInterception() {
-        log("Setting up comprehensive HTTPS interception");
-        
-        // Get current domain for proxy
-        const proxyBase = window.location.protocol + "//" + window.location.host + "/proxy/";
-        
-        function makeSecure(url) {
-          if (typeof url === 'string') {
-            // Check if it's already our proxy URL
-            if (url.indexOf('/proxy/http') !== -1) {
-              return url;
-            }
-            
-            // Handle both encoded and non-encoded HTTP URLs
-            var targetUrl = url;
-            if (url.startsWith('http%3A%2F%2F')) {
-              // URL is encoded, decode it first
-              try {
-                targetUrl = decodeURIComponent(url);
-              } catch (e) {
-                targetUrl = url;
-              }
-            }
-            
-            if (targetUrl.startsWith('http://')) {
-              console.warn("🔒 Lampa Stack: Intercepting HTTP URL:", targetUrl);
-              var proxiedUrl = proxyBase + targetUrl;
-              console.warn("🔒 Lampa Stack: Redirecting to:", proxiedUrl);
-              return proxiedUrl;
-            }
-          }
-          return url;
-        }
-        
-        // Global flag to track interception status
-        window.lampaStackInterceptionActive = true;
-
-        // 1. Intercept fetch
-        if (window.fetch && !window.fetch._lampaPatched) {
-          const originalFetch = window.fetch;
-          window.fetch = function(url, options) {
-            var secureUrl = makeSecure(url);
-            if (secureUrl !== url) {
-              console.warn("🔒 Lampa Stack: fetch intercepted:", url, "→", secureUrl);
-            }
-            
-            // Also intercept redirects in the response
-            return originalFetch(secureUrl, options).then(function(response) {
-              // Check if response has a redirect with HTTP URL
-              if (response.redirected && response.url && response.url.startsWith('http://')) {
-                console.warn("🔒 Lampa Stack: Redirect detected to HTTP URL:", response.url);
-                // Re-fetch with secure URL
-                return originalFetch(makeSecure(response.url), options);
-              }
-              return response;
-            });
-          };
-          window.fetch._lampaPatched = true;
-          log("Patched fetch()");
-        }
-
-        // 2. Intercept XMLHttpRequest
-        if (window.XMLHttpRequest && !XMLHttpRequest.prototype.open._lampaPatched) {
-          const originalOpen = XMLHttpRequest.prototype.open;
-          XMLHttpRequest.prototype.open = function(method, url, async, user, password) {
-            var secureUrl = makeSecure(url);
-            if (secureUrl !== url) {
-              console.warn("🔒 Lampa Stack: XMLHttpRequest intercepted:", url, "→", secureUrl);
-            }
-            return originalOpen.call(this, method, secureUrl, async, user, password);
-          };
-          XMLHttpRequest.prototype.open._lampaPatched = true;
-          
-          // Also intercept the send method to catch any missed URLs
-          const originalSend = XMLHttpRequest.prototype.send;
-          XMLHttpRequest.prototype.send = function(data) {
-            if (this._url && this._url.startsWith('http://')) {
-              console.error("🚨 Lampa Stack: Missed HTTP request in XMLHttpRequest.send:", this._url);
-            }
-            return originalSend.call(this, data);
-          };
-          
-          log("Patched XMLHttpRequest");
-        }
-
-        // 3. Intercept video element src
-        if (window.HTMLVideoElement && !HTMLVideoElement.prototype.setAttribute._lampaPatched) {
-          const originalVideoSetAttribute = HTMLVideoElement.prototype.setAttribute;
-          HTMLVideoElement.prototype.setAttribute = function(name, value) {
-            if (name === 'src' || name === 'data-src') {
-              value = makeSecure(value);
-            }
-            return originalVideoSetAttribute.call(this, name, value);
-          };
-          HTMLVideoElement.prototype.setAttribute._lampaPatched = true;
-
-          // Also patch the src property directly
-          const originalSrcDescriptor = Object.getOwnPropertyDescriptor(HTMLVideoElement.prototype, 'src') || 
-                                       Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'src');
-          if (originalSrcDescriptor && originalSrcDescriptor.set && !originalSrcDescriptor.set._lampaPatched) {
-            Object.defineProperty(HTMLVideoElement.prototype, 'src', {
-              set: function(value) {
-                originalSrcDescriptor.set.call(this, makeSecure(value));
-              },
-              get: originalSrcDescriptor.get,
-              configurable: true
-            });
-            originalSrcDescriptor.set._lampaPatched = true;
-          }
-          log("Patched HTMLVideoElement");
-        }
-
-        // 4. Intercept audio element src
-        if (window.HTMLAudioElement && !HTMLAudioElement.prototype.setAttribute._lampaPatched) {
-          const originalAudioSetAttribute = HTMLAudioElement.prototype.setAttribute;
-          HTMLAudioElement.prototype.setAttribute = function(name, value) {
-            if (name === 'src' || name === 'data-src') {
-              value = makeSecure(value);
-            }
-            return originalAudioSetAttribute.call(this, name, value);
-          };
-          HTMLAudioElement.prototype.setAttribute._lampaPatched = true;
-          log("Patched HTMLAudioElement");
-        }
-
-        // 5. Watch for HLS.js and other video libraries
-        function patchHlsJs() {
-          if (window.Hls && !window.Hls._lampaPatched) {
-            const originalLoadSource = window.Hls.prototype.loadSource;
-            window.Hls.prototype.loadSource = function(url) {
-              log("HLS.js loading source:", url);
-              return originalLoadSource.call(this, makeSecure(url));
-            };
-            window.Hls._lampaPatched = true;
-            log("Patched HLS.js");
-          }
-        }
-
-        // 6. Watch for dynamically added elements
-        function setupMutationObserver() {
-          const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-              mutation.addedNodes.forEach(function(node) {
-                if (node.nodeType === 1) { // Element node
-                  // Check for video/audio elements with HTTP sources
-                  const mediaElements = node.querySelectorAll ? 
-                    node.querySelectorAll('video[src^="http://"], audio[src^="http://"], source[src^="http://"]') : [];
-                  
-                  for (let i = 0; i < mediaElements.length; i++) {
-                    const el = mediaElements[i];
-                    const src = el.getAttribute('src');
-                    if (src && src.startsWith('http://')) {
-                      log("Found HTTP media element, proxying:", src);
-                      el.setAttribute('src', makeSecure(src));
-                    }
-                  }
-                  
-                  // Check if the node itself is a media element
-                  if (node.tagName === 'VIDEO' || node.tagName === 'AUDIO' || node.tagName === 'SOURCE') {
-                    const src = node.getAttribute('src');
-                    if (src && src.startsWith('http://')) {
-                      log("Found HTTP media node, proxying:", src);
-                      node.setAttribute('src', makeSecure(src));
-                    }
-                  }
-                }
-              });
-            });
-          });
-          
-          observer.observe(document.body, {
-            childList: true,
-            subtree: true
-          });
-          log("MutationObserver active");
-        }
-
-        // 7. Patch URL constructor for completeness
-        if (window.URL && !window.URL._lampaPatched) {
-          const originalURL = window.URL;
-          window.URL = function(url, base) {
-            if (typeof url === 'string' && url.startsWith('http://')) {
-              url = makeSecure(url);
-            }
-            return new originalURL(url, base);
-          };
-          // Copy static methods
-          Object.setPrototypeOf(window.URL, originalURL);
-          Object.getOwnPropertyNames(originalURL).forEach(function(name) {
-            if (typeof originalURL[name] === 'function') {
-              window.URL[name] = originalURL[name];
-            }
-          });
-          window.URL._lampaPatched = true;
-          log("Patched URL constructor");
-        }
-
-        // 8. Add global error handler for mixed content
-        window.addEventListener('error', function(e) {
-          if (e.message && e.message.indexOf('Mixed Content') !== -1) {
-            console.error("🚨 Lampa Stack: Mixed content error detected:", e.message);
-          }
-        });
-        
-        // 9. Monitor all network requests (if available)
-        if (window.PerformanceObserver) {
-          try {
-            const observer = new PerformanceObserver(function(list) {
-              list.getEntries().forEach(function(entry) {
-                if (entry.name && entry.name.startsWith('http://')) {
-                  console.error("🚨 Lampa Stack: Unintercepted HTTP request detected:", entry.name);
-                }
-              });
-            });
-            observer.observe({entryTypes: ['resource']});
-            log("Performance observer active");
-          } catch (e) {
-            log("Performance observer not available");
-          }
-        }
-        
-        // Initialize everything
-        patchHlsJs();
-        setupMutationObserver();
-        
-        // Re-check for HLS.js periodically (in case it loads later)
-        setTimeout(patchHlsJs, 1000);
-        setTimeout(patchHlsJs, 5000);
-        
-        // Final check - log interception status
-        setTimeout(function() {
-          console.warn("🔒 Lampa Stack: Interception status check");
-          console.warn("🔒 fetch patched:", !!window.fetch._lampaPatched);
-          console.warn("🔒 XMLHttpRequest patched:", !!XMLHttpRequest.prototype.open._lampaPatched);
-          console.warn("🔒 HTMLVideoElement patched:", !!HTMLVideoElement.prototype.setAttribute._lampaPatched);
-          console.warn("🔒 HLS.js patched:", !!window.Hls && !!window.Hls._lampaPatched);
-        }, 2000);
-        
-        log("HTTPS interception setup complete");
-      }
-
       function initLampaStack() {
         log("Initializing plugins and settings");
-
-        // Add plugins
-        var plugins_to_load = [];
-        for (let plugin of DEFAULT_PLUGINS) {
-          var plugins = Lampa.Plugins.get();
-          if (!plugins.find(function(p) { return p.url === plugin.url; })) {
-            addPluginIfDoesntExist(plugin);
-            plugins_to_load.push(plugin.url);
-          }
-        }
-
-        // Load new plugins
-        if (plugins_to_load.length) {
-          log("Loading new plugins:", plugins_to_load);
-          Lampa.Utils.putScript(plugins_to_load, function() {
-            log("Plugins loaded successfully");
-          }, function() {
-            log("Error loading some plugins");
-          }, function() {}, true);
-        }
 
         // Apply settings
         for (let key in DEFAULT_SETTINGS) {
@@ -393,23 +101,11 @@
         }
 
         disableUnwantedElements();
-        setupHttpsInterception();
 
         log("Initialization complete");
       }
 
       initLampaStack();
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/plugins/sw.js');
-      }
-
-      // Interception status check
-      setTimeout(function() {
-        log("Interception status check");
-        log("fetch patched:", !!window.fetch._lampaPatched);
-        log("XMLHttpRequest patched:", !!XMLHttpRequest.prototype.open._lampaPatched);
-        log("HTMLVideoElement patched:", !!HTMLVideoElement.prototype.setAttribute._lampaPatched);
-      }, 2000);
     }
   }, 200);
 })();
