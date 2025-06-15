@@ -30,7 +30,7 @@
         Lampa.Lang.translate("title_subscribes"),
         Lampa.Lang.translate("menu_history"),
         Lampa.Lang.translate("menu_torrents"),
-        "DLNA",
+        "Скачанные торренты",
         Lampa.Lang.translate("menu_timeline"),
         Lampa.Lang.translate("menu_movies"),
         Lampa.Lang.translate("title_persons"),
