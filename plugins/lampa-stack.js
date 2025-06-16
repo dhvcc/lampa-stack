@@ -29,7 +29,7 @@
       '<style class="hide-premium"> .settings--account-premium{display: none;} </style>'
     );
   setInterval(() => {
-    if (checkPremium()) $("body").append(Lampa.Template.get("DisableAds", {}, true));
+    if (checkPremium()) $("body").append(Lampa.Template.get("DisableCubSyncSettings", {}, true));
     else $('.hide-premium').remove();
   }, 500);
 
