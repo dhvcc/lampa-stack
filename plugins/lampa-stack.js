@@ -109,7 +109,7 @@
         function checkPremium() {
           let user = Lampa.Storage.get('account_user', '{}')
 
-          return user.id ? Utils.countDays(Date.now(), user.premium) : 0
+          return user.id ? Lampa.Utils.countDays(Date.now(), user.premium) : 0
         }
         
         Lampa.Template.add(
