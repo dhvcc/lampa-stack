@@ -117,8 +117,12 @@
           '<style class="hide-premium"> .settings--account-premium{display: none;} </style>'
         );
         setInterval(() => {
-          if (checkPremium()) $('.hide-premium').remove();
-          else $("body").append(Lampa.Template.get("DisableCubSyncSettings", {}, true));
+          if (checkPremium()) {
+            $('.hide-premium').remove();
+          }
+          else if (!$('.hide-premium').length) {
+            $("body").append(Lampa.Template.get("DisableCubSyncSettings", {}, true));
+          }
         }, 500);
       }
 
