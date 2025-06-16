@@ -111,11 +111,11 @@
 
           return user.id ? Utils.countDays(Date.now(), user.premium) : 0
         }
-        $('.settings-param-title:contains("CUB")').
-          Lampa.Template.add(
-            "DisableCubSyncSettings",
-            '<style class="hide-premium"> .settings--account-premium{display: none;} </style>'
-          );
+        
+        Lampa.Template.add(
+          "DisableCubSyncSettings",
+          '<style class="hide-premium"> .settings--account-premium{display: none;} </style>'
+        );
         setInterval(() => {
           if (checkPremium()) $("body").append(Lampa.Template.get("DisableCubSyncSettings", {}, true));
           else $('.hide-premium').remove();
