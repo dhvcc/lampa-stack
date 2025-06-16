@@ -104,7 +104,7 @@
 
          Lampa.Template.add(
           "Hide some settings",
-          "<style> selector[data-component=\"parental_control\"]{display: none;} selector[data-component=\"tmdb\"]{display: none;} </style>"
+          "<style> .selector[data-component=\"parental_control\"]{display: none;} .selector[data-component=\"tmdb\"]{display: none;} </style>"
         );
         $("body").append(Lampa.Template.get("Hide some settings", {}, true));
 
