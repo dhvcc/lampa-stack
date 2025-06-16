@@ -17,21 +17,6 @@
 
   log("Starting");
 
-  // Check if user is premium
-  function checkPremium() {
-    let user = user_data || Storage.get('account_user', '{}')
-
-    return user.id ? Utils.countDays(Date.now(), user.premium) : 0
-  }
-  $('.settings-param-title:contains("CUB")').
-    Lampa.Template.add(
-      "DisableCubSyncSettings",
-      '<style class="hide-premium"> .settings--account-premium{display: none;} </style>'
-    );
-  setInterval(() => {
-    if (checkPremium()) $("body").append(Lampa.Template.get("DisableCubSyncSettings", {}, true));
-    else $('.hide-premium').remove();
-  }, 500);
 
   // Wait for Lampa to be available
   var timer = setInterval(function () {
@@ -56,17 +41,12 @@
         Lampa.Lang.translate("menu_relises"),
         "Коллекции",
         Lampa.Lang.translate("menu_filter"),
-        "Shikimori icon\n            \n            Shikimori",
-        Lampa.Lang.translate("Shikimori"),
-        // Lampa.Lang.translate("ТВ by skaz"),
-        // Lampa.Lang.translate("TV by skaz 2.0"),
       ];
 
       let DEFAULT_MENU_HIDE = [
         Lampa.Lang.translate("menu_feed"),
         Lampa.Lang.translate("title_persons"),
         Lampa.Lang.translate("menu_relises"),
-        // Lampa.Lang.translate("ТВ by skaz"),
       ];
 
       const DEFAULT_SETTINGS = {
@@ -124,12 +104,22 @@
         );
         $("body").append(Lampa.Template.get("Hide some settings", {}, true));
 
-        // Disable Skaz 1.0
-        // Lampa.Template.add(
-        //   "DisableSkaz10",
-        //   "<style> [data-component=\"iptvskaz_n\"]{display: none;} </style>"
-        // );
-        // $("body").append(Lampa.Template.get("DisableSkaz10", {}, true));
+
+        // Check if user is premium
+        function checkPremium() {
+          let user = user_data || Storage.get('account_user', '{}')
+
+          return user.id ? Utils.countDays(Date.now(), user.premium) : 0
+        }
+        $('.settings-param-title:contains("CUB")').
+          Lampa.Template.add(
+            "DisableCubSyncSettings",
+            '<style class="hide-premium"> .settings--account-premium{display: none;} </style>'
+          );
+        setInterval(() => {
+          if (checkPremium()) $("body").append(Lampa.Template.get("DisableCubSyncSettings", {}, true));
+          else $('.hide-premium').remove();
+        }, 500);
       }
 
       function addCustomElements() {
