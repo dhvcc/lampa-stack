@@ -2,14 +2,14 @@
   "use strict";
 
   console.originalLog = console.log;
-  const internalLog = function() {
+  const internalLog = function () {
     let args = Array.from(arguments);
     if (args.length < 3) {
       args.push("");
     }
     console.originalLog.apply(console, args);
   };
-  const log = function() {
+  const log = function () {
     let args = Array.from(arguments);
     args.unshift("Lampa Stack");
     internalLog.apply(console, args);
@@ -17,8 +17,24 @@
 
   log("Starting");
 
+  // Check if user is premium
+  function checkPremium() {
+    let user = user_data || Storage.get('account_user', '{}')
+
+    return user.id ? Utils.countDays(Date.now(), user.premium) : 0
+  }
+  $('.settings-param-title:contains("CUB")').
+    Lampa.Template.add(
+      "DisableCubSyncSettings",
+      '<style class="hide-premium"> .settings--account-premium{display: none;} </style>'
+    );
+  setInterval(() => {
+    if (checkPremium()) $("body").append(Lampa.Template.get("DisableAds", {}, true));
+    else $('.hide-premium').remove();
+  }, 500);
+
   // Wait for Lampa to be available
-  var timer = setInterval(function() {
+  var timer = setInterval(function () {
     if (typeof Lampa !== 'undefined') {
       clearInterval(timer);
       log("Lampa detected, initializing");
@@ -55,7 +71,7 @@
 
       const DEFAULT_SETTINGS = {
         // Account settings
-        account_use: true,  // Disable Cub sync, we're going to use our own backup
+        account_use: true,
 
         // Torrent settings
         parser_use: true,
@@ -102,9 +118,9 @@
         );
         $("body").append(Lampa.Template.get("Hide Settings menu item", {}, true));
 
-         Lampa.Template.add(
+        Lampa.Template.add(
           "Hide some settings",
-          "<style> .selector[data-component=\"parental_control\"]{display: none;} .selector[data-component=\"tmdb\"]{display: none;} </style>"
+          "<style> .selector[data-component=\"parental_control\"]{display: none;} .selector[data-component=\"backup\"]{display: none;} .selector[data-component=\"tmdb\"]{display: none;} </style>"
         );
         $("body").append(Lampa.Template.get("Hide some settings", {}, true));
 
@@ -117,15 +133,15 @@
       }
 
       function addCustomElements() {
-        var checkInterval = setInterval(function() {
+        var checkInterval = setInterval(function () {
           if ($('body').find('.head__actions').length) {
             clearInterval(checkInterval);
-            
+
             var m_reload = '<div id="MRELOAD" class="head__action selector m-reload-screen"><svg fill="#ffffff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff" stroke-width="0.4800000000000001"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M4,12a1,1,0,0,1-2,0A9.983,9.983,0,0,1,18.242,4.206V2.758a1,1,0,1,1,2,0v4a1,1,0,0,1-1,1h-4a1,1,0,0,1,0-2h1.743A7.986,7.986,0,0,0,4,12Zm17-1a1,1,0,0,0-1,1A7.986,7.986,0,0,1,7.015,18.242H8.757a1,1,0,1,0,0-2h-4a1,1,0,0,0-1,1v4a1,1,0,0,0,2,0V19.794A9.984,9.984,0,0,0,22,12,1,1,0,0,0,21,11Z" fill="currentColor"></path></g></svg></div>';
             $('body').find('.head__actions').append(m_reload);
             $('body').find('.head__actions #RELOAD').remove();
-    
-            $('#MRELOAD').on('hover:enter hover:click hover:touch', function() {
+
+            $('#MRELOAD').on('hover:enter hover:click hover:touch', function () {
               location.reload();
             });
           }
