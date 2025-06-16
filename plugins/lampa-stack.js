@@ -86,7 +86,7 @@
 
         Lampa.Template.add(
           "Hide useless elements",
-          "<style> .head__action.selector.open--profile{display: none;} </style>"
+          "<style> .head__action.selector.open--profile{display: none;} .full-screen{display: none;} </style>"
         );
         $("body").append(Lampa.Template.get("Hide useless elements", {}, true));
 
