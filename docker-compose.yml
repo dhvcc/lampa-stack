@@ -4,6 +4,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./docker/lampac/manifest.json:/home/module/manifest.json:ro
+      - ./docker/lampac/msx.json:/home/msx.json:ro
     expose:
       - "9118"
     labels: [ "com.centurylinklabs.watchtower.scope=lampac" ]

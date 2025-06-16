@@ -1,0 +1,21 @@
+{
+    "name": "Lampa",
+    "type": "list",
+    "headline": "Lampa Media Station",
+    "version": "1.0.0",
+    "parameter": "content:{localhost}/msx/start.json",
+    "action": "[settings:validate_links:0|home]",
+    "dictionary": "{localhost}/lampa-main/msx/lang/ru.json",
+    "template": {
+        "type": "separate",
+        "layout": "0,0,2,3",
+        "color": "msx-glass"
+    },
+    "items": [
+        {
+            "title": "Lampa",
+            "image": "{localhost}/lampa-main/msx-logo.png",
+            "action": "link:{localhost}/lampa-main/index.html"
+        }
+    ]
+}
