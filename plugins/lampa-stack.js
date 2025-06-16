@@ -107,7 +107,7 @@
 
         // Check if user is premium
         function checkPremium() {
-          let user = user_data || Storage.get('account_user', '{}')
+          let user = Storage.get('account_user', '{}')
 
           return user.id ? Utils.countDays(Date.now(), user.premium) : 0
         }
