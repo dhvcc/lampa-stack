@@ -76,7 +76,7 @@
         // Disable ads
         Lampa.Template.add(
           "DisableAds",
-          '<style> .ad-server{display: none;} .open--premium{display: none;} .notice:has(.notice__img img[src="https://cub.red/img/icons/premium_two.svg"]){display: none;} </style>'
+          '<style> .extensions__item-premium,.ad-server,.open--premium{display: none;} .notice:has(.notice__img img[src="https://cub.red/img/icons/premium_two.svg"]){display: none;} </style>'
         );
         $("body").append(Lampa.Template.get("DisableAds", {}, true));
 
