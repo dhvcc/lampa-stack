@@ -3,6 +3,22 @@
 
 All-in-one Lampa player with custom patches to enable deep integration with TorrServer/QBitTorrent and ease of setup and use.
 
+## NOTE
+
+The project is not really maintained anymore. Lampa/Lampac change too much and reverse engineering plugins to apply patches is too time consuming
+
+Perhaps there will be better and a more solid base to inherit from and it'll be feasible to maintain, but it was **not the case** as of _May 2025_
+
+PRs are welcome for sure and if you have any ideas on how to resurrect / continue this project - feel free to raise an Issue
+
+### Why not just use Lampac
+
+I don't really trust their FE code, it's highly minimized and obfuscated. The whole process just seemed to sketchy
+
+The BE is open source, so I felt it ok to use the backend in a container, while building the actual opensource code of Lampa
+
+-------------
+
 ## Run
 
 ```bash
@@ -58,7 +74,7 @@ This software is provided "as is" without warranty of any kind, either expressed
 - [ ] Custom built Lampac API (With default to avoid admin manifest install and routes restricted only to necessary API) & Online mod
 - [ ] Crash dumps saved in Lampa to be able to investigate them
 - [ ] Don't silence console.errors in lampa (adds to the above ^)
-- [] Add bracketed names for logging in dev console, but not in "Lampa console" (like [Lampa stack]). Makes easier to filter **Might be a PR**
+- [ ] Add bracketed names for logging in dev console, but not in "Lampa console" (like [Lampa stack]). Makes easier to filter **Might be a PR**
 - [ ] More info on the above shelf ^
 - [ ] LME translations for Shikimori & pubtorr **Might be a PR**
 - [ ] Add vuetorrent webui manually, don't use custom image
